@@ -162,6 +162,142 @@ emb.results <- embedding_model %>% evaluate(test_x, test_y)
 ### 3.1 Dataset Description
 For sentiment analysis, we will be using a data set that contains computer generated tweets for training data and another collection of tweets for testing. Any tweet with positive emoticons was assumed to be positive, and any tweet with negative emotions was assumed to be negative. The emoticons were removed from the dataset. The dataset was last updated 4 years ago and was posted by Abhishek Shrivastava. The computer-generated tweets that make up the training data are organized into ten columns. The first column is textID used to uniquely identify each tweet in the dataset. The second column is the text which is the entire tweet used. The third column is the selected text of the tweet used to perform sentiment analysis. The fourth column is the labeled sentiment of the tweet, which is classified as neutral, negative, or positive. The fifth column is the time of day the tweet was posted which is classified as morning, noon, or night. The sixth column stores the age range that the user is in. The seventh column is the country the tweet was posted from when the user posted. The eighth column is the given population of the country. The ninth column is the given land area of the country. The tenth column is the given population density of the country. During the literature review process, twitter datasets were often used for sentiment analysis such as “Sentiment Analysis with NLP on Twitter Data” by (Hasan et al. 2019) and “Natural Language Processing for Sentiment Analysis An Exploratory Analysis on Tweets” by (Chong et al. 2014). Therefore, this dataset of generated tweets seems appropriate for our sentiment analysis research project.
 
+#### Import Packages
+
+```{r}
+library(tidyverse)
+library(tm)
+library(SnowballC)
+library(fastDummies)
+```
+
+#### Load Training and Test Data
+
+```{r}
+#load data
+train <- read.csv('train.csv')
+test <- read.csv('test.csv')
+```
+
+#### Convert Data to Corpus
+
+```{r}
+#convert data to corpus
+mycorpus_train <- Corpus(VectorSource(train$text))
+mycorpus_test <- Corpus(VectorSource(test$text))
+```
+
+#### Create Functions to Clean Data
+
+```{r}
+remove_url <- function(x) {
+  gsub("http[^[:space:]]*", "", x)
+}
+
+
+remove_mentions <- function(x) {
+  gsub("@\\w+", "", x)
+}
+
+
+remove_hashtags <- function(x) {
+  gsub("#\\w+", "", x)
+}
+
+remove_rt <- function(x) {
+  gsub("\\bRT\\b", "", x)
+}
+
+
+remove_punctuation <- function(x) {
+  gsub("[[:punct:]]+", " ", x)  # Replace punctuation with a space
+}
+
+convert_to_lowercase <- function(x) {
+  tolower(x)
+}
+
+remove_numbers <- function(x) {
+  gsub("\\d+", "", x)
+}
+
+remove_non_ascii <- function(x) {
+  iconv(x, "latin1", "ASCII", sub="")
+}
+
+remove_stopwords <- function(x) {
+  removeWords(x, stopwords("en"))
+}
+
+stem_words <- function(x) {
+  wordStem(x, language = "en")
+}
+
+remove_extra_whitespace <- function(x) {
+  gsub("\\s+", " ", trimws(x))
+}
+```
+
+#### Execute cleaning Functions
+
+```{r}
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_url))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_punctuation))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(convert_to_lowercase))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_stopwords))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(stem_words))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_numbers))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_hashtags))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_rt))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_mentions))
+mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_extra_whitespace))
+
+
+
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_url))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_punctuation))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(convert_to_lowercase))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_stopwords))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(stem_words))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_numbers))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_hashtags))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_rt))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_mentions))
+mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_extra_whitespace))
+```
+
+#### Convert Each Corpus Back to a Data Frame
+
+```{r}
+tweets_train <- data.frame(text = sapply(mycorpus_train,as.character),stringsAsFactors = FALSE)
+tweets_test <- data.frame(text = sapply(mycorpus_test,as.character),stringsAsFactors = FALSE)
+```
+
+#### One-hot Encode Sentiment Values and Attach New Data Frames to the Text Column
+
+```{r}
+# Use dummy_cols from fastDummies package for one-hot encoding
+train_one_hot <- dummy_cols(train, select_columns = "sentiment", remove_first_dummy = FALSE)
+train_one_hot <- train_one_hot[ , !names(train_one_hot) %in% c("sentiment")]
+
+test_one_hot <- dummy_cols(test, select_columns = "sentiment", remove_first_dummy = FALSE)
+test_one_hot <- test_one_hot[ , !names(test_one_hot) %in% c("sentiment")]
+
+#append the one hot encoding to the cleaned text
+train_one_hot <- train_one_hot %>% select(-text)
+test_one_hot <- test_one_hot %>% select(-text)
+
+train_processed <- cbind(tweets_train, train_one_hot)
+test_processed <- cbind(tweets_test, test_one_hot)
+```
+
+#### Drop NA Values
+
+```{r}
+train_processed <- train_processed %>% filter(!is.na(text) & text != "")
+test_processed <- test_processed %>% filter(!is.na(text) & text != "")
+```
+
 ### Data and Visualization
 
 
