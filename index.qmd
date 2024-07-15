@@ -49,6 +49,26 @@ Our two popular pretrained word  methods were each trained on different datasets
 
 
 ## 2. Methods
+In this section we will be implementing a neural model using the keras package, which uses a tensorflow backend to classify the sentiment in tweets. Our first step was to download and set up that environment on our computers. Before starting to work with our data we first needed to pre-process it and ensure that our data was clean and was composed of all lowercase letters and that it had all non-alphabetic characters, stop words, emojis, URLs, and usernames removed. From there we needed to vectorize or convert our strings into numbers which we accomplished by encoding each word with a unique number to create a vocabulary list of all unique words in our tweets dataset. An example follows below:
+
+Tweet #1: "this is fun"
+
+Tweet #2: "fun times ahead"
+
+Tweet #3: "fun is ahead of times"
+
+Based on our three tweets above, we have six unique words. These six unique words would each be assigned a numeric value. Thus our vocabulary list would be [1-this, 2-is, 3-fun, 4-times, 5-ahead, 6-of]. So to vectorize our tweets we would just need to put the numeric values for each of those words together to represent the three tweets above as shown below.
+
+Tweet #1 vectorized: [1,2,3]
+
+Tweet #2 vectorized: [3,4,5]
+
+Tweet #3 vectorized: [3,2,5,6,4]
+
+After creating our vocabulary list from all the unique words in our tweets dataset we had to set a limit to the number of inputs (numeric) we would be accepting for our model. Our neural network has a simple architecture of 500 inputs to the embedding layer and 7 outputs or 7 dimensions of the embedding vectors we create. The embedding layer acts as a lookup table that maps the integer indices from our vocabulary list to the dense vectors which are the vectorized tweets. In other words, the maximum number of words we would use from a tweet which we decided to go with 500. If any tweet was less than 500 words we would then just pad that vectorized tweet with zeros to reach the 500 numeric inputs that the model is expecting.
+
+After having accomplished all of the above, our last step was to split our dataset into training and test sets and compile and train our model. We decided to go with a 70% training set and a 30% test set. Our analysis and results section follows below with what we learned in this section.
+
 ```{r}
 install.packages('reticulate', repos = "http://cran.us.r-project.org")
 install.packages('tensorflow', repos = "http://cran.us.r-project.org")
