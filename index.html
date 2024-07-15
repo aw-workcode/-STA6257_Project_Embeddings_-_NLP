@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.553">
+<meta name="generator" content="quarto-1.4.555">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,6 +19,40 @@ ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
 width: 0.8em;
 margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
+}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+}
+pre.numberSource { margin-left: 3em; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 
 div.csl-bib-body { }
@@ -3150,12 +3184,298 @@ window.Quarto = {
 </section>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">2. Methods</h2>
+<p>In this section we will be implementing a neural model using the keras package, which uses a tensorflow backend to classify the sentiment in tweets. Our first step was to download and set up that environment on our computers. Before starting to work with our data we first needed to pre-process it and ensure that our data was clean and was composed of all lowercase letters and that it had all non-alphabetic characters, stop words, emojis, URLs, and usernames removed. From there we needed to vectorize or convert our strings into numbers which we accomplished by encoding each word with a unique number to create a vocabulary list of all unique words in our tweets dataset. An example follows below:</p>
+<p>Tweet #1: “this is fun”</p>
+<p>Tweet #2: “fun times ahead”</p>
+<p>Tweet #3: “fun is ahead of times”</p>
+<p>Based on our three tweets above, we have six unique words. These six unique words would each be assigned a numeric value. Thus our vocabulary list would be [1-this, 2-is, 3-fun, 4-times, 5-ahead, 6-of]. So to vectorize our tweets we would just need to put the numeric values for each of those words together to represent the three tweets above as shown below.</p>
+<p>Tweet #1 vectorized: [1,2,3]</p>
+<p>Tweet #2 vectorized: [3,4,5]</p>
+<p>Tweet #3 vectorized: [3,2,5,6,4]</p>
+<p>After creating our vocabulary list from all the unique words in our tweets dataset we had to set a limit to the number of inputs (numeric) we would be accepting for our model. Our neural network has a simple architecture of 500 inputs to the embedding layer and 7 outputs or 7 dimensions of the embedding vectors we create. The embedding layer acts as a lookup table that maps the integer indices from our vocabulary list to the dense vectors which are the vectorized tweets. In other words, the maximum number of words we would use from a tweet which we decided to go with 500. If any tweet was less than 500 words we would then just pad that vectorized tweet with zeros to reach the 500 numeric inputs that the model is expecting.</p>
+<p>After having accomplished all of the above, our last step was to split our dataset into training and test sets and compile and train our model. We decided to go with a 70% training set and a 30% test set. Our analysis and results section follows below with what we learned in this section.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;reticulate&#39;, repos = &quot;http://cran.us.r-project.org&quot;)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;tensorflow&#39;, repos = &quot;http://cran.us.r-project.org&quot;)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;keras&#39;, repos = &quot;http://cran.us.r-project.org&quot;)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;dplyr&#39;, repos = &quot;http://cran.us.r-project.org&quot;)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;text2vec&#39;, repos = &quot;http://cran.us.r-project.org&quot;)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;tidyr&#39;, repos = &quot;http://cran.us.r-project.org&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#reticulate::install_python()</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#library(tensorflow)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#install_tensorflow(envname=&quot;r-tensorflow&quot;)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#tensorflow::as_tensor(1)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#library(keras)</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#install_keras()</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(&#39;fs&#39;)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#tensorflow::as_tensor(1)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#library(text2vec)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#library(dplyr)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#library(tidyr)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#orig = read.csv(&quot;training.1600000.processed.noemoticon.csv&quot;, header=TRUE)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#names(orig) &lt;- c(&quot;polarity&quot;, &quot;id&quot;, &quot;date&quot;, &quot;query&quot;, &quot;user&quot;, &quot;text&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ds = rbind(head(orig, n=5000), tail(orig, n=5000)) # use small dataset in dev</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ds &lt;- orig</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#max_features &lt;- 5000</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#maxlen &lt;- 500</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#vector_dimensions &lt;- 7</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># First create a vocabulary of all the individual words used in the dataset</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#it = itoken(ds$text, preprocessor = tolower, tokenizer=word_tokenizer)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#vocab &lt;- create_vocabulary(it) </span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#vocab_sorted &lt;- vocab[order(vocab$term_count, decreasing=TRUE),] %&gt;% mutate(idx = row_number())</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#vocab_sorted &lt;- head(vocab_sorted, n=max_features-1) #take only the top most common words</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Now create a mapping from the vocabulary word to a integer</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># representation for each word. Use factor indexing so the word</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># can be looked up quickly and retrieve the mapped integer value.</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#vocab_translate = vocab_sorted$idx</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#names(vocab_translate) = as.factor(vocab_sorted$term)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Vectorize every tweet in the dataset by looking up the integer index</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># from the vocabulary associated with each word in the tweet.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#vectorize_row &lt;- function(r) {</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#tokenized = word_tokenizer(r)[[1]]</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#vectorized &lt;- c(sapply(tokenized, function(x) vocab_translate[x]), rep(0,maxlen-length(tokenized)))</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#return(vectorized)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#}</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#tokenized_ds &lt;- sapply(ds$text, vectorize_row)</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#tokenized_ds &lt;- t(tokenized_ds) # transpose since sapply returns the tweets in columns instead of rows</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#tokenized_ds &lt;- replace_na(tokenized_ds, 0) # any word outside our top vocab is NA, so replace with 0 for unknown word</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#dimnames(tokenized_ds) &lt;- list(NULL, NULL) # remove the tweets as indexes into the matrix</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#set.seed(42)</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#sample_size &lt;- floor(0.7*nrow(tokenized_ds)) # 70% training set</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#train_idx &lt;- sample(seq_len(nrow(tokenized_ds)), size=sample_size)</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#train_x &lt;- tokenized_ds[train_idx, , drop=FALSE]</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#train_y &lt;- ds$polarity[train_idx]</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#test_x &lt;- tokenized_ds[-train_idx, , drop=FALSE]</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#test_y &lt;- ds$polarity[-train_idx]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#embedding_model &lt;- keras_model_sequential() %&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#layer_embedding(input_dim = max_features, output_dim = vector_dimensions,  </span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                  <span class="co">#input_length = maxlen) %&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#layer_flatten() %&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#layer_dense(units = 1, activation = &quot;sigmoid&quot;)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#embedding_model %&gt;% compile(</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#optimizer = &quot;rmsprop&quot;,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#loss = &quot;binary_crossentropy&quot;,</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#metrics = c(&quot;acc&quot;)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#summary(embedding_model)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#emb.history &lt;- embedding_model %&gt;% keras::fit(</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#train_x, train_y, </span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#epochs = 6,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#batch_size = 32,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#validation_split = 0.2</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#emb.results &lt;- embedding_model %&gt;% evaluate(test_x, test_y)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section>
 <section id="analysis-and-results" class="level2">
 <h2 class="anchored" data-anchor-id="analysis-and-results">3. Analysis and Results</h2>
 <section id="dataset-description" class="level3">
 <h3 class="anchored" data-anchor-id="dataset-description">3.1 Dataset Description</h3>
 <p>For sentiment analysis, we will be using a data set that contains computer generated tweets for training data and another collection of tweets for testing. Any tweet with positive emoticons was assumed to be positive, and any tweet with negative emotions was assumed to be negative. The emoticons were removed from the dataset. The dataset was last updated 4 years ago and was posted by Abhishek Shrivastava. The computer-generated tweets that make up the training data are organized into ten columns. The first column is textID used to uniquely identify each tweet in the dataset. The second column is the text which is the entire tweet used. The third column is the selected text of the tweet used to perform sentiment analysis. The fourth column is the labeled sentiment of the tweet, which is classified as neutral, negative, or positive. The fifth column is the time of day the tweet was posted which is classified as morning, noon, or night. The sixth column stores the age range that the user is in. The seventh column is the country the tweet was posted from when the user posted. The eighth column is the given population of the country. The ninth column is the given land area of the country. The tenth column is the given population density of the country. During the literature review process, twitter datasets were often used for sentiment analysis such as “Sentiment Analysis with NLP on Twitter Data” by (Hasan et al. 2019) and “Natural Language Processing for Sentiment Analysis An Exploratory Analysis on Tweets” by (Chong et al. 2014). Therefore, this dataset of generated tweets seems appropriate for our sentiment analysis research project.</p>
+<section id="import-packages" class="level4">
+<h4 class="anchored" data-anchor-id="import-packages">Import Packages</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SnowballC)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fastDummies)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="load-training-and-test-data" class="level4">
+<h4 class="anchored" data-anchor-id="load-training-and-test-data">Load Training and Test Data</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&#39;train.csv&#39;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&#39;test.csv&#39;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="convert-data-to-corpus" class="level4">
+<h4 class="anchored" data-anchor-id="convert-data-to-corpus">Convert Data to Corpus</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#convert data to corpus</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">Corpus</span>(<span class="fu">VectorSource</span>(train<span class="sc">$</span>text))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">Corpus</span>(<span class="fu">VectorSource</span>(test<span class="sc">$</span>text))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="create-functions-to-clean-data" class="level4">
+<h4 class="anchored" data-anchor-id="create-functions-to-clean-data">Create Functions to Clean Data</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>remove_url <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">&quot;http[^[:space:]]*&quot;</span>, <span class="st">&quot;&quot;</span>, x)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>remove_mentions <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">&quot;@</span><span class="sc">\\</span><span class="st">w+&quot;</span>, <span class="st">&quot;&quot;</span>, x)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>remove_hashtags <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">&quot;#</span><span class="sc">\\</span><span class="st">w+&quot;</span>, <span class="st">&quot;&quot;</span>, x)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>remove_rt <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">bRT</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;&quot;</span>, x)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>remove_punctuation <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">&quot;[[:punct:]]+&quot;</span>, <span class="st">&quot; &quot;</span>, x)  <span class="co"># Replace punctuation with a space</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>convert_to_lowercase <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tolower</span>(x)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>remove_numbers <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">d+&quot;</span>, <span class="st">&quot;&quot;</span>, x)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>remove_non_ascii <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">iconv</span>(x, <span class="st">&quot;latin1&quot;</span>, <span class="st">&quot;ASCII&quot;</span>, <span class="at">sub=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>remove_stopwords <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">removeWords</span>(x, <span class="fu">stopwords</span>(<span class="st">&quot;en&quot;</span>))</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>stem_words <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">wordStem</span>(x, <span class="at">language =</span> <span class="st">&quot;en&quot;</span>)</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>remove_extra_whitespace <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">s+&quot;</span>, <span class="st">&quot; &quot;</span>, <span class="fu">trimws</span>(x))</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="execute-cleaning-functions" class="level4">
+<h4 class="anchored" data-anchor-id="execute-cleaning-functions">Execute cleaning Functions</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_url))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_punctuation))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(convert_to_lowercase))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_stopwords))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(stem_words))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_numbers))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_hashtags))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_rt))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_mentions))</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>mycorpus_train <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_train, <span class="fu">content_transformer</span>(remove_extra_whitespace))</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_url))</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_punctuation))</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(convert_to_lowercase))</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_stopwords))</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(stem_words))</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_numbers))</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_hashtags))</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_rt))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_mentions))</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>mycorpus_test <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(mycorpus_test, <span class="fu">content_transformer</span>(remove_extra_whitespace))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="convert-each-corpus-back-to-a-data-frame" class="level4">
+<h4 class="anchored" data-anchor-id="convert-each-corpus-back-to-a-data-frame">Convert Each Corpus Back to a Data Frame</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>tweets_train <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">text =</span> <span class="fu">sapply</span>(mycorpus_train,as.character),<span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>tweets_test <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">text =</span> <span class="fu">sapply</span>(mycorpus_test,as.character),<span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="one-hot-encode-sentiment-values-and-attach-new-data-frames-to-the-text-column" class="level4">
+<h4 class="anchored" data-anchor-id="one-hot-encode-sentiment-values-and-attach-new-data-frames-to-the-text-column">One-hot Encode Sentiment Values and Attach New Data Frames to the Text Column</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use dummy_cols from fastDummies package for one-hot encoding</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>train_one_hot <span class="ot">&lt;-</span> <span class="fu">dummy_cols</span>(train, <span class="at">select_columns =</span> <span class="st">&quot;sentiment&quot;</span>, <span class="at">remove_first_dummy =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>train_one_hot <span class="ot">&lt;-</span> train_one_hot[ , <span class="sc">!</span><span class="fu">names</span>(train_one_hot) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;sentiment&quot;</span>)]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>test_one_hot <span class="ot">&lt;-</span> <span class="fu">dummy_cols</span>(test, <span class="at">select_columns =</span> <span class="st">&quot;sentiment&quot;</span>, <span class="at">remove_first_dummy =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>test_one_hot <span class="ot">&lt;-</span> test_one_hot[ , <span class="sc">!</span><span class="fu">names</span>(test_one_hot) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;sentiment&quot;</span>)]</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#append the one hot encoding to the cleaned text</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>train_one_hot <span class="ot">&lt;-</span> train_one_hot <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>text)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>test_one_hot <span class="ot">&lt;-</span> test_one_hot <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>text)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>train_processed <span class="ot">&lt;-</span> <span class="fu">cbind</span>(tweets_train, train_one_hot)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>test_processed <span class="ot">&lt;-</span> <span class="fu">cbind</span>(tweets_test, test_one_hot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="drop-na-values" class="level4">
+<h4 class="anchored" data-anchor-id="drop-na-values">Drop NA Values</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>train_processed <span class="ot">&lt;-</span> train_processed <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(text) <span class="sc">&amp;</span> text <span class="sc">!=</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>test_processed <span class="ot">&lt;-</span> test_processed <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(text) <span class="sc">&amp;</span> text <span class="sc">!=</span> <span class="st">&quot;&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
 </section>
 <section id="data-and-visualization" class="level3">
 <h3 class="anchored" data-anchor-id="data-and-visualization">Data and Visualization</h3>
