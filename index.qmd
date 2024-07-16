@@ -65,11 +65,9 @@ Tweet #2 vectorized: [3,4,5]
 
 Tweet #3 vectorized: [3,2,5,6,4]
 
-After creating our vocabulary list from all the unique words in our tweets dataset we had to set a limit to the number of inputs (numeric) we would be accepting for our model. Our neural network has a simple architecture of 500 inputs to the embedding layer and 7 outputs or 7 dimensions of the embedding vectors we create. The embedding layer acts as a lookup table that maps the integer indices from our vocabulary list to the dense vectors which are the vectorized tweets. In other words, the maximum number of words we would use from a tweet which we decided to go with 500. If any tweet was less than 500 words we would then just pad that vectorized tweet with zeros to reach the 500 numeric inputs that the model is expecting.
+After creating our vocabulary list from all the unique words in our tweets dataset we had to set a limit to the number of inputs (numeric) we would be accepting for our model. Our neural network has a simple architecture of 500 inputs to the embedding layer and 7 outputs or 7 dimensions of the embedding vectors we create. [@DeepLearningRBook] was an important resource in coding the embedding model. The embedding layer acts as a lookup table that maps the integer indices from our vocabulary list to the dense vectors which are the vectorized tweets. In other words, the maximum number of words we would use from a tweet which we decided to go with 500. If any tweet was less than 500 words we would then just pad that vectorized tweet with zeros to reach the 500 numeric inputs that the model is expecting.
 
 After having accomplished all of the above, our last step was to split our dataset into training and test sets and compile and train our model. We decided to go with a 70% training set and a 30% test set. Our analysis and results section follows below with what we learned in this section.
-
-
 
 
 
