@@ -69,108 +69,6 @@ After creating our vocabulary list from all the unique words in our tweets datas
 
 After having accomplished all of the above, our last step was to split our dataset into training and test sets and compile and train our model. We decided to go with a 70% training set and a 30% test set. Our analysis and results section follows below with what we learned in this section.
 
-```{r}
-#install.packages('reticulate', repos = "http://cran.us.r-project.org")
-#install.packages('tensorflow', repos = "http://cran.us.r-project.org")
-#install.packages('keras', repos = "http://cran.us.r-project.org")
-#install.packages('dplyr', repos = "http://cran.us.r-project.org")
-#install.packages('text2vec', repos = "http://cran.us.r-project.org")
-#install.packages('tidyr', repos = "http://cran.us.r-project.org")
-```
-
-```{r}
-#reticulate::install_python()
-#library(tensorflow)
-#install_tensorflow(envname="r-tensorflow")
-#tensorflow::as_tensor(1)
-#library(keras)
-#install_keras()
-#install.packages('fs')
-
-#tensorflow::as_tensor(1)
-#library(text2vec)
-#library(dplyr)
-#library(tidyr)
-```
-
-
-```{r}
-#orig = read.csv("training.1600000.processed.noemoticon.csv", header=TRUE)
-#names(orig) <- c("polarity", "id", "date", "query", "user", "text")
-```
-
-```{r}
-#ds = rbind(head(orig, n=5000), tail(orig, n=5000)) # use small dataset in dev
-# ds <- orig
-#max_features <- 5000
-#maxlen <- 500
-#vector_dimensions <- 7
-
-# First create a vocabulary of all the individual words used in the dataset
-#it = itoken(ds$text, preprocessor = tolower, tokenizer=word_tokenizer)
-#vocab <- create_vocabulary(it) 
-#vocab_sorted <- vocab[order(vocab$term_count, decreasing=TRUE),] %>% mutate(idx = row_number())
-#vocab_sorted <- head(vocab_sorted, n=max_features-1) #take only the top most common words
-
-# Now create a mapping from the vocabulary word to a integer
-# representation for each word. Use factor indexing so the word
-# can be looked up quickly and retrieve the mapped integer value.
-#vocab_translate = vocab_sorted$idx
-#names(vocab_translate) = as.factor(vocab_sorted$term)
-
-```
-
-```{r}
-
-# Vectorize every tweet in the dataset by looking up the integer index
-# from the vocabulary associated with each word in the tweet.
-
-#vectorize_row <- function(r) {
-  #tokenized = word_tokenizer(r)[[1]]
-  #vectorized <- c(sapply(tokenized, function(x) vocab_translate[x]), rep(0,maxlen-length(tokenized)))
-  #return(vectorized)
-#}
-
-#tokenized_ds <- sapply(ds$text, vectorize_row)
-#tokenized_ds <- t(tokenized_ds) # transpose since sapply returns the tweets in columns instead of rows
-#tokenized_ds <- replace_na(tokenized_ds, 0) # any word outside our top vocab is NA, so replace with 0 for unknown word
-#dimnames(tokenized_ds) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
-
-#set.seed(42)
-#sample_size <- floor(0.7*nrow(tokenized_ds)) # 70% training set
-#train_idx <- sample(seq_len(nrow(tokenized_ds)), size=sample_size)
-#train_x <- tokenized_ds[train_idx, , drop=FALSE]
-#train_y <- ds$polarity[train_idx]
-#test_x <- tokenized_ds[-train_idx, , drop=FALSE]
-#test_y <- ds$polarity[-train_idx]
-```
-
-```{r}
-#embedding_model <- keras_model_sequential() %>%
-  #layer_embedding(input_dim = max_features, output_dim = vector_dimensions,  
-                  #input_length = maxlen) %>%
-  #layer_flatten() %>%
-  #layer_dense(units = 1, activation = "sigmoid")
-#embedding_model %>% compile(
-  #optimizer = "rmsprop",
-  #loss = "binary_crossentropy",
-  #metrics = c("acc")
-#)
-#summary(embedding_model)
-```
-
-```{r}
-#emb.history <- embedding_model %>% keras::fit(
-  #train_x, train_y, 
-  #epochs = 6,
-  #batch_size = 32,
-  #validation_split = 0.2
-#)
-```
-
-```{r}
-#emb.results <- embedding_model %>% evaluate(test_x, test_y)
-```
 
 
 
@@ -185,6 +83,17 @@ For sentiment analysis, we will be using a data set that contains computer gener
 #### Import Packages
 
 ```{r}
+install.packages('tidyverse', repos = "http://cran.us.r-project.org")
+install.packages('tm', repos = "http://cran.us.r-project.org")
+install.packages('SnowballC', repos = "http://cran.us.r-project.org")
+install.packages('fastDummies', repos = "http://cran.us.r-project.org")
+install.packages('reticulate', repos = "http://cran.us.r-project.org")
+install.packages('tensorflow', repos = "http://cran.us.r-project.org")
+#remove.packages("keras")
+install.packages('keras3', repos = "http://cran.us.r-project.org")
+install.packages('dplyr', repos = "http://cran.us.r-project.org")
+install.packages('text2vec', repos = "http://cran.us.r-project.org")
+install.packages('tidyr', repos = "http://cran.us.r-project.org")
 library(tidyverse)
 library(tm)
 library(SnowballC)
@@ -296,19 +205,12 @@ tweets_test <- data.frame(text = sapply(mycorpus_test,as.character),stringsAsFac
 #### One-hot Encode Sentiment Values and Attach New Data Frames to the Text Column
 
 ```{r}
-# Use dummy_cols from fastDummies package for one-hot encoding
-train_one_hot <- dummy_cols(train, select_columns = "sentiment", remove_first_dummy = FALSE)
-train_one_hot <- train_one_hot[ , !names(train_one_hot) %in% c("sentiment")]
-
-test_one_hot <- dummy_cols(test, select_columns = "sentiment", remove_first_dummy = FALSE)
-test_one_hot <- test_one_hot[ , !names(test_one_hot) %in% c("sentiment")]
-
-#append the one hot encoding to the cleaned text
-train_one_hot <- train_one_hot %>% select(-text)
-test_one_hot <- test_one_hot %>% select(-text)
-
-train_processed <- cbind(tweets_train, train_one_hot)
-test_processed <- cbind(tweets_test, test_one_hot)
+train_sentiment_int = ifelse(train$sentiment=='positive', 0, ifelse(train$sentiment=='neutral',1,2))
+test_sentiment_int = ifelse(test$sentiment=='positive', 0, ifelse(test$sentiment=='neutral',1,2))
+train_processed <- cbind(tweets_train, train_sentiment_int)
+test_processed <- cbind(tweets_test, test_sentiment_int)
+names(train_processed) = c('text','polarity')
+names(test_processed) = c('text','polarity')
 ```
 
 #### Drop NA Values
@@ -322,6 +224,92 @@ test_processed <- test_processed %>% filter(!is.na(text) & text != "")
 
 
 ### Statistical Modeling
+
+```{r}
+library(text2vec)
+library(dplyr)
+library(tidyr)
+
+reticulate::install_python()
+#library(tensorflow)
+#install_tensorflow(envname="r-tensorflow")
+library(keras3)
+install_keras(envname="r-tensorflow")
+```
+
+```{r}
+max_features <- 5000
+maxlen <- 500
+vector_dimensions <- 7
+
+# combine training and testing together
+ds <- rbind(test_processed, train_processed)
+
+# First create a vocabulary of all the individual words used in the dataset
+it = itoken(ds$text, preprocessor = tolower, tokenizer=word_tokenizer)
+vocab <- create_vocabulary(it) 
+vocab_sorted <- vocab[order(vocab$term_count, decreasing=TRUE),] %>% mutate(idx = row_number())
+vocab_sorted <- head(vocab_sorted, n=max_features-1) #take only the top most common words
+
+# Now create a mapping from the vocabulary word to a integer
+# representation for each word. Use factor indexing so the word
+# can be looked up quickly and retrieve the mapped integer value.
+vocab_translate = vocab_sorted$idx
+names(vocab_translate) = as.factor(vocab_sorted$term)
+
+```
+
+```{r}
+
+# Vectorize every tweet in the dataset by looking up the integer index
+# from the vocabulary associated with each word in the tweet.
+
+vectorize_row <- function(r) {
+  tokenized = word_tokenizer(r)[[1]]
+  vectorized <- c(sapply(tokenized, function(x) vocab_translate[x]), rep(0,maxlen-length(tokenized)))
+  return(vectorized)
+}
+
+tokenized_ds <- sapply(ds$text, vectorize_row)
+tokenized_ds <- t(tokenized_ds) # transpose since sapply returns the tweets in columns instead of rows
+tokenized_ds <- replace_na(tokenized_ds, 0) # any word outside our top vocab is NA, so replace with 0 for unknown word
+dimnames(tokenized_ds) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
+
+set.seed(42)
+sample_size <- floor(0.7*nrow(tokenized_ds)) # 70% training set
+train_idx <- sample(seq_len(nrow(tokenized_ds)), size=sample_size)
+train_x <- tokenized_ds[train_idx, , drop=FALSE]
+train_y <- ds$polarity[train_idx]
+test_x <- tokenized_ds[-train_idx, , drop=FALSE]
+test_y <- ds$polarity[-train_idx]
+```
+
+```{r}
+embedding_model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_features, output_dim = vector_dimensions,  
+                  input_length = maxlen) %>%
+  layer_flatten() %>%
+  layer_dense(units = 1, activation = "sigmoid")
+embedding_model %>% keras3::compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("acc")
+)
+summary(embedding_model)
+```
+
+```{r}
+emb.history <- embedding_model %>% keras3::fit(
+  train_x, train_y, 
+  epochs = 6,
+  batch_size = 32,
+  validation_split = 0.2
+)
+```
+
+```{r}
+emb.results <- embedding_model %>% evaluate(test_x, test_y)
+```
 
 ### Conclusion
 
