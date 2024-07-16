@@ -325,12 +325,3 @@ test_processed <- test_processed %>% filter(!is.na(text) & text != "")
 
 ### Conclusion
 
-## References
-Khurana, D., Koli, A., Khatter, K. et al. Natural language processing: state of the art, current trends and challenges. Multimed Tools Appl 82, 3713–3744 (2023). https://doi.org/10.1007/s11042-022-13428-4
-
-Jan Sawicki, Maria Ganzha, Marcin Paprzycki; The State of the Art of Natural Language Processing—A Systematic Automated Review of NLP Literature Using NLP Techniques. Data Intelligence 2023; 5 (3): 707–749. doi: https://doi.org/10.1162/dint_a_00213
-
-M. R. Hasan, M. Maliha and M. Arifuzzaman, "Sentiment Analysis with NLP on Twitter Data," 2019 International Conference on Computer, Communication, Chemical, Materials and Electronic Engineering (IC4ME2), Rajshahi, Bangladesh, 2019, pp. 1-4, doi: 10.1109/IC4ME247184.2019.9036670. keywords: {Sentiment analysis;Twitter;Load modeling;Data mining;Analytical models;Companies;Natural language processing (NLP);Twitter;data mining;Sentiment analysis},
-
-W. Y. Chong, B. Selvaretnam and L. -K. Soon, "Natural Language Processing for Sentiment Analysis: An Exploratory Analysis on Tweets," 2014 4th International Conference on Artificial Intelligence with Applications in Engineering and Technology, Kota Kinabalu, Malaysia, 2014, pp. 212-217, doi: 10.1109/ICAIET.2014.43. keywords: {Sentiment analysis;Twitter;Semantics;Feature extraction;Machine learning algorithms;Tagging;Sentiment Analysis; Natural Language Processing; Tweets},
-
