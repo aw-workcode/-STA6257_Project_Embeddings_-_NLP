@@ -4,6 +4,8 @@ author: "Rod Acosta, Kevin Furbish, Ibrahim Khan, Anthony Washington"
 format:
   html:
     code-fold: true
+    toc: true
+    toc-depth: 2
 course: STA 6257 - Advanced Statistical Modeling
 bibliography: references.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
