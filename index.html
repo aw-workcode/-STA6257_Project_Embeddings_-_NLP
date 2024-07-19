@@ -3442,7 +3442,7 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>emb.history <span class="ot">&lt;-</span> embedding_model <span class="sc">%&gt;%</span> keras3<span class="sc">::</span><span class="fu">fit</span>(</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>embedding_history <span class="ot">&lt;-</span> embedding_model <span class="sc">%&gt;%</span> keras3<span class="sc">::</span><span class="fu">fit</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  tokenized_train, train_y, </span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">6</span>,</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">batch_size =</span> <span class="dv">32</span>,</span>
@@ -3451,26 +3451,26 @@ window.Quarto = {
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Epoch 1/6
-683/683 - 3s - 4ms/step - acc: 0.4032 - loss: 0.0926 - val_acc: 0.4136 - val_loss: -2.1442e-01
+683/683 - 2s - 4ms/step - acc: 0.4033 - loss: 0.0882 - val_acc: 0.4140 - val_loss: -1.7643e-01
 Epoch 2/6
-683/683 - 2s - 3ms/step - acc: 0.4206 - loss: -5.1591e-01 - val_acc: 0.4472 - val_loss: -1.1161e+00
+683/683 - 2s - 2ms/step - acc: 0.4212 - loss: -5.3351e-01 - val_acc: 0.4140 - val_loss: -1.1426e+00
 Epoch 3/6
-683/683 - 2s - 3ms/step - acc: 0.4347 - loss: -1.6701e+00 - val_acc: 0.4755 - val_loss: -2.5203e+00
+683/683 - 2s - 3ms/step - acc: 0.4352 - loss: -1.7027e+00 - val_acc: 0.4145 - val_loss: -2.6478e+00
 Epoch 4/6
-683/683 - 2s - 3ms/step - acc: 0.4370 - loss: -3.3673e+00 - val_acc: 0.4514 - val_loss: -4.6602e+00
+683/683 - 2s - 2ms/step - acc: 0.4369 - loss: -3.4088e+00 - val_acc: 0.4975 - val_loss: -4.4519e+00
 Epoch 5/6
-683/683 - 2s - 3ms/step - acc: 0.4396 - loss: -5.6865e+00 - val_acc: 0.4164 - val_loss: -7.3612e+00
+683/683 - 2s - 2ms/step - acc: 0.4400 - loss: -5.7187e+00 - val_acc: 0.4215 - val_loss: -7.4365e+00
 Epoch 6/6
-683/683 - 2s - 3ms/step - acc: 0.4381 - loss: -8.5236e+00 - val_acc: 0.4746 - val_loss: -1.0419e+01</code></pre>
+683/683 - 2s - 2ms/step - acc: 0.4393 - loss: -8.5737e+00 - val_acc: 0.4166 - val_loss: -1.0694e+01</code></pre>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>emb.results <span class="ot">&lt;-</span> embedding_model <span class="sc">%&gt;%</span> <span class="fu">evaluate</span>(tokenized_test, test_y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>embedding_results <span class="ot">&lt;-</span> embedding_model <span class="sc">%&gt;%</span> <span class="fu">evaluate</span>(tokenized_test, test_y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>111/111 - 0s - 465us/step - acc: 0.4351 - loss: -6.9010e+00</code></pre>
+<pre><code>111/111 - 0s - 442us/step - acc: 0.4104 - loss: -6.7954e+00</code></pre>
 </div>
 </div>
 </section>

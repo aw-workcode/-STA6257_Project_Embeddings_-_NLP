@@ -285,7 +285,7 @@ summary(embedding_model)
 ```
 
 ```{r}
-emb.history <- embedding_model %>% keras3::fit(
+embedding_history <- embedding_model %>% keras3::fit(
   tokenized_train, train_y, 
   epochs = 6,
   batch_size = 32,
@@ -294,7 +294,7 @@ emb.history <- embedding_model %>% keras3::fit(
 ```
 
 ```{r}
-emb.results <- embedding_model %>% evaluate(tokenized_test, test_y)
+embedding_results <- embedding_model %>% evaluate(tokenized_test, test_y)
 ```
 
 ### Conclusion
