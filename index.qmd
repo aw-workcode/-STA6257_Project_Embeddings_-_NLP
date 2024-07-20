@@ -223,8 +223,8 @@ install_keras(envname="r-tensorflow")
 
 ```{r}
 max_vocab_words <- 5000
-maxlen <- 500
-vector_dimensions <- 6
+max_words <- 500
+vector_dimensions <- 7
 
 # First create a vocabulary of all the individual words used in the training dataset
 it = itoken(train_processed$text, preprocessor = tolower, tokenizer=word_tokenizer)
@@ -246,7 +246,7 @@ names(vocab_translate) = as.factor(vocab_sorted$term)
 # from the vocabulary associated with each word in the tweet.
 vectorize_row <- function(r) {
   tokenized = word_tokenizer(r)[[1]]
-  vectorized <- c(sapply(tokenized, function(x) vocab_translate[x]), rep(0,maxlen-length(tokenized)))
+  vectorized <- c(sapply(tokenized, function(x) vocab_translate[x]), rep(0,max_words-length(tokenized)))
   return(vectorized)
 }
 
@@ -295,6 +295,38 @@ embedding_history <- embedding_model %>% keras3::fit(
 
 ```{r}
 embedding_results <- embedding_model %>% evaluate(tokenized_test, test_y)
+```
+
+```{r}
+imdb <- dataset_imdb(num_words = max_vocab_words)
+imdb_train_x = imdb$train$x
+imdb_test_x = imdb$test$x
+imdb_train_y = imdb$train$y
+imdb_test_y = imdb$test$y
+
+imdb_train_x <- pad_sequences(imdb_train_x, maxlen = max_words)
+imdb_test_x <- pad_sequences(imdb_test_x, maxlen = max_words)
+
+imdb_embedding_model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = vector_dimensions) %>%
+  layer_flatten() %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+imdb_embedding_model %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("acc")
+)
+summary(imdb_embedding_model)
+
+imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+  imdb_train_x, imdb_train_y, 
+  epochs = 6,
+  batch_size = 32,
+  validation_split = 0.2
+)
+
+imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
 ```
 
 ### Conclusion
