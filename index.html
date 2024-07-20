@@ -3361,8 +3361,8 @@ window.Quarto = {
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>max_vocab_words <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>maxlen <span class="ot">&lt;-</span> <span class="dv">500</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>vector_dimensions <span class="ot">&lt;-</span> <span class="dv">6</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>max_words <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>vector_dimensions <span class="ot">&lt;-</span> <span class="dv">7</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># First create a vocabulary of all the individual words used in the training dataset</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>it <span class="ot">=</span> <span class="fu">itoken</span>(train_processed<span class="sc">$</span>text, <span class="at">preprocessor =</span> tolower, <span class="at">tokenizer=</span>word_tokenizer)</span>
@@ -3384,7 +3384,7 @@ window.Quarto = {
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># from the vocabulary associated with each word in the tweet.</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>vectorize_row <span class="ot">&lt;-</span> <span class="cf">function</span>(r) {</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  tokenized <span class="ot">=</span> <span class="fu">word_tokenizer</span>(r)[[<span class="dv">1</span>]]</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  vectorized <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">sapply</span>(tokenized, <span class="cf">function</span>(x) vocab_translate[x]), <span class="fu">rep</span>(<span class="dv">0</span>,maxlen<span class="sc">-</span><span class="fu">length</span>(tokenized)))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  vectorized <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">sapply</span>(tokenized, <span class="cf">function</span>(x) vocab_translate[x]), <span class="fu">rep</span>(<span class="dv">0</span>,max_words<span class="sc">-</span><span class="fu">length</span>(tokenized)))</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(vectorized)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
@@ -3451,17 +3451,17 @@ window.Quarto = {
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Epoch 1/6
-683/683 - 2s - 4ms/step - acc: 0.4033 - loss: 0.0882 - val_acc: 0.4140 - val_loss: -1.7643e-01
+683/683 - 3s - 4ms/step - acc: 0.4031 - loss: 0.0702 - val_acc: 0.4138 - val_loss: -2.6075e-01
 Epoch 2/6
-683/683 - 2s - 2ms/step - acc: 0.4212 - loss: -5.3351e-01 - val_acc: 0.4140 - val_loss: -1.1426e+00
+683/683 - 2s - 3ms/step - acc: 0.4216 - loss: -6.6213e-01 - val_acc: 0.4151 - val_loss: -1.3602e+00
 Epoch 3/6
-683/683 - 2s - 3ms/step - acc: 0.4352 - loss: -1.7027e+00 - val_acc: 0.4145 - val_loss: -2.6478e+00
+683/683 - 2s - 3ms/step - acc: 0.4373 - loss: -2.0157e+00 - val_acc: 0.4140 - val_loss: -3.0473e+00
 Epoch 4/6
-683/683 - 2s - 2ms/step - acc: 0.4369 - loss: -3.4088e+00 - val_acc: 0.4975 - val_loss: -4.4519e+00
+683/683 - 2s - 3ms/step - acc: 0.4368 - loss: -4.0446e+00 - val_acc: 0.4702 - val_loss: -5.4812e+00
 Epoch 5/6
-683/683 - 2s - 2ms/step - acc: 0.4400 - loss: -5.7187e+00 - val_acc: 0.4215 - val_loss: -7.4365e+00
+683/683 - 2s - 3ms/step - acc: 0.4392 - loss: -6.7292e+00 - val_acc: 0.4204 - val_loss: -8.7348e+00
 Epoch 6/6
-683/683 - 2s - 2ms/step - acc: 0.4393 - loss: -8.5737e+00 - val_acc: 0.4166 - val_loss: -1.0694e+01</code></pre>
+683/683 - 2s - 3ms/step - acc: 0.4393 - loss: -1.0161e+01 - val_acc: 0.4468 - val_loss: -1.2513e+01</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -3470,7 +3470,77 @@ Epoch 6/6
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>embedding_results <span class="ot">&lt;-</span> embedding_model <span class="sc">%&gt;%</span> <span class="fu">evaluate</span>(tokenized_test, test_y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>111/111 - 0s - 442us/step - acc: 0.4104 - loss: -6.7954e+00</code></pre>
+<pre><code>111/111 - 0s - 638us/step - acc: 0.4229 - loss: -8.5576e+00</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>imdb <span class="ot">&lt;-</span> <span class="fu">dataset_imdb</span>(<span class="at">num_words =</span> max_vocab_words)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>imdb_train_x <span class="ot">=</span> imdb<span class="sc">$</span>train<span class="sc">$</span>x</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>imdb_test_x <span class="ot">=</span> imdb<span class="sc">$</span>test<span class="sc">$</span>x</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>imdb_train_y <span class="ot">=</span> imdb<span class="sc">$</span>train<span class="sc">$</span>y</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>imdb_test_y <span class="ot">=</span> imdb<span class="sc">$</span>test<span class="sc">$</span>y</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>imdb_train_x <span class="ot">&lt;-</span> <span class="fu">pad_sequences</span>(imdb_train_x, <span class="at">maxlen =</span> max_words)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>imdb_test_x <span class="ot">&lt;-</span> <span class="fu">pad_sequences</span>(imdb_test_x, <span class="at">maxlen =</span> max_words)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>imdb_embedding_model <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_embedding</span>(<span class="at">input_dim =</span> max_vocab_words, <span class="at">output_dim =</span> vector_dimensions) <span class="sc">%&gt;%</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_flatten</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, <span class="at">activation =</span> <span class="st">&quot;sigmoid&quot;</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>imdb_embedding_model <span class="sc">%&gt;%</span> <span class="fu">compile</span>(</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="st">&quot;rmsprop&quot;</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">loss =</span> <span class="st">&quot;binary_crossentropy&quot;</span>,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">&quot;acc&quot;</span>)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(imdb_embedding_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: &quot;sequential_1&quot;
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                      ┃ Output Shape             ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ embedding_1 (Embedding)           │ ?                        │   0 (unbuilt) │
+├───────────────────────────────────┼──────────────────────────┼───────────────┤
+│ flatten_1 (Flatten)               │ ?                        │   0 (unbuilt) │
+├───────────────────────────────────┼──────────────────────────┼───────────────┤
+│ dense_1 (Dense)                   │ ?                        │   0 (unbuilt) │
+└───────────────────────────────────┴──────────────────────────┴───────────────┘
+ Total params: 0 (0.00 B)
+ Trainable params: 0 (0.00 B)
+ Non-trainable params: 0 (0.00 B)</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>imdb_embedding_history <span class="ot">&lt;-</span> imdb_embedding_model <span class="sc">%&gt;%</span> keras3<span class="sc">::</span><span class="fu">fit</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  imdb_train_x, imdb_train_y, </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">6</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">batch_size =</span> <span class="dv">32</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation_split =</span> <span class="fl">0.2</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Epoch 1/6
+625/625 - 2s - 3ms/step - acc: 0.7072 - loss: 0.5718 - val_acc: 0.8076 - val_loss: 0.4197
+Epoch 2/6
+625/625 - 1s - 2ms/step - acc: 0.8647 - loss: 0.3281 - val_acc: 0.8622 - val_loss: 0.3212
+Epoch 3/6
+625/625 - 1s - 2ms/step - acc: 0.8936 - loss: 0.2632 - val_acc: 0.8784 - val_loss: 0.2966
+Epoch 4/6
+625/625 - 2s - 3ms/step - acc: 0.9075 - loss: 0.2305 - val_acc: 0.8772 - val_loss: 0.2939
+Epoch 5/6
+625/625 - 1s - 2ms/step - acc: 0.9222 - loss: 0.2050 - val_acc: 0.8706 - val_loss: 0.3137
+Epoch 6/6
+625/625 - 1s - 2ms/step - acc: 0.9326 - loss: 0.1834 - val_acc: 0.8716 - val_loss: 0.3136</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>imdb_embedding_results <span class="ot">&lt;-</span> imdb_embedding_model <span class="sc">%&gt;%</span> <span class="fu">evaluate</span>(imdb_test_x, imdb_test_y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>782/782 - 0s - 368us/step - acc: 0.8745 - loss: 0.3024</code></pre>
 </div>
 </div>
 </section>
