@@ -36,7 +36,7 @@ Collectively, these studies highlight the evolution and application of sentiment
 ### 1.2 Vector Embeddings In Natural Language Processing
 One technique for encoding or describing the sentiment of a word or group of words is to use vector embeddings (or embeddings). Before discussing the use of embeddings for SA, it’s important to first understand what embeddings are. Embeddings are said to be “one of the most important topics of interest” in NLP in the last decade [@camacho2020embeddings].
 
-An early way to represent a word for NLP systems was to have a vocabulary of words, and each word is represented as an atomic, simple index into the vocabulary [@mikolov2013word2vec]. Embeddings are an alternative method to encode natural language as a vector representation. Embeddings can be used to represent words [@bengio2000neural]; [@collobert2011natural]; [@pennington2014glove], sentences [@kiros2015skip] and documents [@pilehvar2020embeddings], as well as to encode more specific meanings of natural language for tasks such as sentiment analysis, topic categorization and word sense disambiguation [@pilehvar2020embeddings]. 
+An early way to represent a word for NLP sy
 
 The use of word embeddings in NLP is an improvement over representing words as an index into a vocabulary since embeddings can encode relationships or similarity of words. For example, when using a simple index into a vocabulary to represent a word, “boy” would have one index and “man” would have another index, but there is no indication that these two words are related. Vocabulary indexes also fail to represent that a word may have multiple meanings. For example, “mouse” would be one entry in a vocabulary, but would fail to indicate if the word refers to an animal, or computer input device [@camacho2020embeddings].
 
@@ -168,8 +168,8 @@ remove_extra_whitespace <- function(x) {
 mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_url))
 mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_punctuation))
 mycorpus_train <- tm_map(mycorpus_train, content_transformer(convert_to_lowercase))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_stopwords))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(stem_words))
+#mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_stopwords))
+#mycorpus_train <- tm_map(mycorpus_train, content_transformer(stem_words))
 mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_numbers))
 mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_hashtags))
 mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_rt))
@@ -179,8 +179,8 @@ mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_extra_whites
 mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_url))
 mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_punctuation))
 mycorpus_test <- tm_map(mycorpus_test, content_transformer(convert_to_lowercase))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_stopwords))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(stem_words))
+#mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_stopwords))
+#mycorpus_test <- tm_map(mycorpus_test, content_transformer(stem_words))
 mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_numbers))
 mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_hashtags))
 mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_rt))
@@ -229,8 +229,8 @@ vector_dimensions <- 7
 # First create a vocabulary of all the individual words used in the training dataset
 it = itoken(train_processed$text, preprocessor = tolower, tokenizer=word_tokenizer)
 vocab <- create_vocabulary(it) 
-vocab_sorted <- vocab[order(vocab$term_count, decreasing=TRUE),] %>% mutate(idx = row_number())
-vocab_sorted <- head(vocab_sorted, n=max_vocab_words-1) # take only the top most common words
+vocab_sorted <- vocab[order(vocab$term_count, decreasing=TRUE),] %>% mutate(idx = row_number()+3) # add 3 to skip over the start sequence token 1 and unknown word token 2
+vocab_sorted <- head(vocab_sorted, n=max_vocab_words-4) # take only the top most common words, -4 to not include padding, start sequence and unknwon word tokens
 
 # Now create a mapping from the vocabulary word to a integer
 # representation for each word. Use factor indexing so the word
@@ -246,13 +246,14 @@ names(vocab_translate) = as.factor(vocab_sorted$term)
 # from the vocabulary associated with each word in the tweet.
 vectorize_row <- function(r) {
   tokenized = word_tokenizer(r)[[1]]
-  vectorized <- c(sapply(tokenized, function(x) vocab_translate[x]), rep(0,max_words-length(tokenized)))
+  # add 1 to the start of every tweet for the start sequence character
+  vectorized <- c(1, sapply(tokenized, function(x) vocab_translate[x]), rep(0,max_words-length(tokenized)))
   return(vectorized)
 }
 
 tokenized_train <- sapply(train_processed$text, vectorize_row)
 tokenized_train <- t(tokenized_train) # transpose since sapply returns the tweets in columns instead of rows
-tokenized_train[is.na(tokenized_train)] <- 0 # any word outside our top vocab is NA, so replace with 0 for unknown word
+tokenized_train[is.na(tokenized_train)] <- 2 # any word outside our top vocab is NA, so replace with 2 for unknown word
 dimnames(tokenized_train) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
 
 train_y <- train_processed %>% select(sentiment)
@@ -262,12 +263,12 @@ test_x <- test_processed %>% select(-sentiment)
 
 tokenized_test <- sapply(test_x$text, vectorize_row)
 tokenized_test <- t(tokenized_test) # transpose since sapply returns the tweets in columns instead of rows
-tokenized_test[is.na(tokenized_test)] <- 0 # any word outside our top vocab is NA, so replace with 0 for unknown word
+tokenized_test[is.na(tokenized_test)] <- 2 # any word outside our top vocab is NA, so replace with 2 for unknown word
 dimnames(tokenized_test) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
 
 tokenized_train <- sapply(train_x$text, vectorize_row)
 tokenized_train <- t(tokenized_train) # transpose since sapply returns the tweets in columns instead of rows
-tokenized_train[is.na(tokenized_train)] <- 0 # any word outside our top vocab is NA, so replace with 0 for unknown word
+tokenized_train[is.na(tokenized_train)] <- 2 # any word outside our top vocab is NA, so replace with 2 for unknown word
 dimnames(tokenized_train) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
 ```
 
@@ -307,8 +308,39 @@ imdb_test_y = imdb$test$y
 imdb_train_x <- pad_sequences(imdb_train_x, maxlen = max_words)
 imdb_test_x <- pad_sequences(imdb_test_x, maxlen = max_words)
 
+accuracy_by_dimensions <- c()
+for (num_dims in rep(1:vector_dimensions)) {
+  imdb_embedding_model <- keras_model_sequential() %>%
+    layer_embedding(input_dim = max_vocab_words, output_dim = num_dims) %>%
+    layer_flatten() %>%
+    layer_dense(units = 1, activation = "sigmoid")
+  
+  imdb_embedding_model %>% compile(
+    optimizer = "rmsprop",
+    loss = "binary_crossentropy",
+    metrics = c("acc")
+  )
+  #summary(imdb_embedding_model)
+  
+  imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+    imdb_train_x, imdb_train_y, verbose=0,
+    epochs = 6,
+    batch_size = 32,
+    validation_split = 0.2
+  )
+  
+  imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+  accuracy_by_dimensions = c(accuracy_by_dimensions, imdb_embedding_results[["acc"]])
+}
+names(accuracy_by_dimensions) <- rep(1:vector_dimensions)
+accuracy_by_dimensions
+```
+
+```{r}
+# Now that we know how many dimensions gives the greatest accuracy, pick number of epochs so model doesn't overfit
+
 imdb_embedding_model <- keras_model_sequential() %>%
-  layer_embedding(input_dim = max_vocab_words, output_dim = vector_dimensions) %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = 2) %>%
   layer_flatten() %>%
   layer_dense(units = 1, activation = "sigmoid")
 
@@ -317,16 +349,27 @@ imdb_embedding_model %>% compile(
   loss = "binary_crossentropy",
   metrics = c("acc")
 )
-summary(imdb_embedding_model)
 
 imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
-  imdb_train_x, imdb_train_y, 
-  epochs = 6,
+  imdb_train_x, imdb_train_y, verbose=1,
+  epochs = 10,
   batch_size = 32,
   validation_split = 0.2
 )
-
+  
 imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+```
+
+![Training Metrics](training_plot.png)
+
+```{r}
+# val_acc drops at epoch 6, so stop at epoch 5 to avoid overfitting
+best_num_epochs <- 5
+```
+
+```{r}
+#line = imdb_train_x[1,]
+#imdb_translate = data.frame(word=names(dataset_imdb_word_index()), 
 ```
 
 ### Conclusion
