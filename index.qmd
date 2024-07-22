@@ -83,6 +83,9 @@ For sentiment analysis, we will be using a data set that contains computer gener
 #### Install and Import Packages
 
 ```{r}
+#| output: false
+#| warning: false
+
 #install.packages('tidyverse', repos = "http://cran.us.r-project.org")
 #install.packages('tm', repos = "http://cran.us.r-project.org")
 #install.packages('SnowballC', repos = "http://cran.us.r-project.org")
@@ -98,120 +101,7 @@ library(tidyverse)
 library(tm)
 library(SnowballC)
 library(fastDummies)
-```
 
-#### Loading and preparing Training and Test Data
-
-```{r}
-
-#load data
-# drop all sentiment of 1 (neutral), and change all values of 2 to 1
-# final result will be sentiment=0: negative, sentiment=1: positive
-train <- read.csv('train.csv') %>% filter(sentiment!=1) %>% 
-  mutate(sentiment = ifelse(sentiment==2, 1, sentiment))
-test <- read.csv('test.csv') %>% filter(sentiment!=1) %>% 
-  mutate(sentiment = ifelse(sentiment==2, 1, sentiment))
-
-#convert data to corpus
-mycorpus_train <- Corpus(VectorSource(train$text))
-mycorpus_test <- Corpus(VectorSource(test$text))
-
-# Create Functions to Clean Data
-remove_url <- function(x) {
-  gsub("http[^[:space:]]*", "", x)
-}
-
-
-remove_mentions <- function(x) {
-  gsub("@\\w+", "", x)
-}
-
-
-remove_hashtags <- function(x) {
-  gsub("#\\w+", "", x)
-}
-
-remove_rt <- function(x) {
-  gsub("\\bRT\\b", "", x)
-}
-
-
-remove_punctuation <- function(x) {
-  gsub("[[:punct:]]+", " ", x)  # Replace punctuation with a space
-}
-
-convert_to_lowercase <- function(x) {
-  tolower(x)
-}
-
-remove_numbers <- function(x) {
-  gsub("\\d+", "", x)
-}
-
-remove_non_ascii <- function(x) {
-  iconv(x, "latin1", "ASCII", sub="")
-}
-
-remove_stopwords <- function(x) {
-  removeWords(x, stopwords("en"))
-}
-
-stem_words <- function(x) {
-  wordStem(x, language = "en")
-}
-
-remove_extra_whitespace <- function(x) {
-  gsub("\\s+", " ", trimws(x))
-}
-
-# Execute cleaning Functions
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_url))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_punctuation))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(convert_to_lowercase))
-#mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_stopwords))
-#mycorpus_train <- tm_map(mycorpus_train, content_transformer(stem_words))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_numbers))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_hashtags))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_rt))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_mentions))
-mycorpus_train <- tm_map(mycorpus_train, content_transformer(remove_extra_whitespace))
-
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_url))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_punctuation))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(convert_to_lowercase))
-#mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_stopwords))
-#mycorpus_test <- tm_map(mycorpus_test, content_transformer(stem_words))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_numbers))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_hashtags))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_rt))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_mentions))
-mycorpus_test <- tm_map(mycorpus_test, content_transformer(remove_extra_whitespace))
-
-# Convert Each Corpus Back to a Data Frame
-tweets_train <- data.frame(text = sapply(mycorpus_train,as.character),stringsAsFactors = FALSE)
-tweets_test <- data.frame(text = sapply(mycorpus_test,as.character),stringsAsFactors = FALSE)
-
-# One-hot Encode Sentiment Values and Attach New Data Frames to the Text Column
-train_sentiment_int = ifelse(train$sentiment=='positive', 0, ifelse(train$sentiment=='neutral',1,2))
-test_sentiment_int = ifelse(test$sentiment=='positive', 0, ifelse(test$sentiment=='neutral',1,2))
-train_processed <- cbind(tweets_train, train_sentiment_int)
-test_processed <- cbind(tweets_test, test_sentiment_int)
-names(train_processed) = c('text','sentiment')
-names(test_processed) = c('text','sentiment')
-
-# Drop NA Values
-train_processed <- train_processed %>% filter(!is.na(text) & text != "")
-test_processed <- test_processed %>% filter(!is.na(text) & text != "")
-```
-
-### Data and Visualization
-
-
-### Statistical Modeling
-
-```{r}
-#| output: false
-#| warning: false
 library(text2vec)
 library(dplyr)
 library(tidyr)
@@ -221,84 +111,20 @@ library(keras3)
 install_keras(envname="r-tensorflow")
 ```
 
+#### Loading and preparing Training and Test Data
+
+
+
+### Data and Visualization
+
+Load the tensorflow IMDB review dataset. Only the top most common 5000 words will be included. All other words will be replaced with a token representing an unknown word. Up to the first 500 words in a review are included in the training and test sets.
+
+The neural net will be expecting batches of training examples that are 500 words long, so pad any observations shorter than 500 words with a token representing the padding word to get to the required 500 word length.
+
 ```{r}
 max_vocab_words <- 5000
 max_words <- 500
-vector_dimensions <- 7
 
-# First create a vocabulary of all the individual words used in the training dataset
-it = itoken(train_processed$text, preprocessor = tolower, tokenizer=word_tokenizer)
-vocab <- create_vocabulary(it) 
-vocab_sorted <- vocab[order(vocab$term_count, decreasing=TRUE),] %>% mutate(idx = row_number()+3) # add 3 to skip over the start sequence token 1 and unknown word token 2
-vocab_sorted <- head(vocab_sorted, n=max_vocab_words-4) # take only the top most common words, -4 to not include padding, start sequence and unknwon word tokens
-
-# Now create a mapping from the vocabulary word to a integer
-# representation for each word. Use factor indexing so the word
-# can be looked up quickly and retrieve the mapped integer value.
-vocab_translate = vocab_sorted$idx
-names(vocab_translate) = as.factor(vocab_sorted$term)
-
-```
-
-```{r}
-
-# Vectorize every tweet in the dataset by looking up the integer index
-# from the vocabulary associated with each word in the tweet.
-vectorize_row <- function(r) {
-  tokenized = word_tokenizer(r)[[1]]
-  # add 1 to the start of every tweet for the start sequence character
-  vectorized <- c(1, sapply(tokenized, function(x) vocab_translate[x]), rep(0,max_words-length(tokenized)))
-  return(vectorized)
-}
-
-tokenized_train <- sapply(train_processed$text, vectorize_row)
-tokenized_train <- t(tokenized_train) # transpose since sapply returns the tweets in columns instead of rows
-tokenized_train[is.na(tokenized_train)] <- 2 # any word outside our top vocab is NA, so replace with 2 for unknown word
-dimnames(tokenized_train) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
-
-train_y <- train_processed %>% select(sentiment)
-train_x <- train_processed %>% select(-sentiment)
-test_y <- test_processed %>% select(sentiment)
-test_x <- test_processed %>% select(-sentiment)
-
-tokenized_test <- sapply(test_x$text, vectorize_row)
-tokenized_test <- t(tokenized_test) # transpose since sapply returns the tweets in columns instead of rows
-tokenized_test[is.na(tokenized_test)] <- 2 # any word outside our top vocab is NA, so replace with 2 for unknown word
-dimnames(tokenized_test) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
-
-tokenized_train <- sapply(train_x$text, vectorize_row)
-tokenized_train <- t(tokenized_train) # transpose since sapply returns the tweets in columns instead of rows
-tokenized_train[is.na(tokenized_train)] <- 2 # any word outside our top vocab is NA, so replace with 2 for unknown word
-dimnames(tokenized_train) <- list(NULL, NULL) # remove the tweets as indexes into the matrix
-```
-
-```{r}
-embedding_model <- keras_model_sequential() %>%
-  layer_embedding(input_dim = max_vocab_words, output_dim = vector_dimensions) %>%
-  layer_flatten() %>%
-  layer_dense(units = 1, activation = "sigmoid")
-embedding_model %>% keras3::compile(
-  optimizer = "rmsprop",
-  loss = "binary_crossentropy",
-  metrics = c("acc")
-)
-summary(embedding_model)
-```
-
-```{r}
-embedding_history <- embedding_model %>% keras3::fit(
-  tokenized_train, train_y, 
-  epochs = 6,
-  batch_size = 32,
-  validation_split = 0.2
-)
-```
-
-```{r}
-embedding_results <- embedding_model %>% evaluate(tokenized_test, test_y)
-```
-
-```{r}
 imdb <- dataset_imdb(num_words = max_vocab_words)
 imdb_train_x = imdb$train$x
 imdb_test_x = imdb$test$x
@@ -307,9 +133,17 @@ imdb_test_y = imdb$test$y
 
 imdb_train_x <- pad_sequences(imdb_train_x, maxlen = max_words)
 imdb_test_x <- pad_sequences(imdb_test_x, maxlen = max_words)
+```
 
+### Statistical Modeling
+
+Now train the embedding model. As a first step, the model will be trained repeatedly with a different number of dimensions each time. Models will be trained using from 2 to 7 dimensions, and the testing accuracy will be recorded for each model.
+
+```{r}
+max_vector_dimensions <- 7
 accuracy_by_dimensions <- c()
-for (num_dims in rep(1:vector_dimensions)) {
+for (num_dims in rep(2:max_vector_dimensions)) {
+  set.seed(123)
   imdb_embedding_model <- keras_model_sequential() %>%
     layer_embedding(input_dim = max_vocab_words, output_dim = num_dims) %>%
     layer_flatten() %>%
@@ -320,7 +154,6 @@ for (num_dims in rep(1:vector_dimensions)) {
     loss = "binary_crossentropy",
     metrics = c("acc")
   )
-  #summary(imdb_embedding_model)
   
   imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
     imdb_train_x, imdb_train_y, verbose=0,
@@ -332,15 +165,111 @@ for (num_dims in rep(1:vector_dimensions)) {
   imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
   accuracy_by_dimensions = c(accuracy_by_dimensions, imdb_embedding_results[["acc"]])
 }
-names(accuracy_by_dimensions) <- rep(1:vector_dimensions)
+names(accuracy_by_dimensions) <- rep(2:max_vector_dimensions)
 accuracy_by_dimensions
 ```
+Perhaps unexpectedly, an embedding of just 2 dimensions had the best accuracy. That may be the highest accuracy in predicting the binary sentiment classification, but the question is does that over compress the data and fail to represent the higher order patterns we hope the embedding models? As [@yin2018dimensionality] points out, "the impact of dimensionality on word embedding has not yet been fully understood...a word embedding with a small dimensionality is typically not expressive enough to capture all possible word relations, whereas one with a very large dimensionality suffers from over-fitting." 
+
+The model with just 2 dimensions is tested to see how well it does on finding similar words, where similar is in the context of the sentiment of a movie review.
 
 ```{r}
-# Now that we know how many dimensions gives the greatest accuracy, pick number of epochs so model doesn't overfit
+best_num_dimensions = 2
 
 imdb_embedding_model <- keras_model_sequential() %>%
-  layer_embedding(input_dim = max_vocab_words, output_dim = 2) %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
+  layer_flatten() %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+imdb_embedding_model %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("acc")
+)
+
+imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+  imdb_train_x, imdb_train_y, verbose=0,
+  epochs = 6,
+  batch_size = 32,
+  validation_split = 0.2
+)
+  
+imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+
+# Get the weights from layer 1, the embedding layer. This is
+# the list of embedding vectors.
+embedding_weights <- get_weights(imdb_embedding_model)[[1]] 
+
+# add labels for the word represented by each embedding
+imdb_word_index = dataset_imdb_word_index()
+reverse_word_index <- names(imdb_word_index)
+names(reverse_word_index) <- imdb_word_index
+top_words <- reverse_word_index[as.character(1:max_vocab_words)]
+rownames(embedding_weights) = c("*","*","*","*", top_words[1:(max_vocab_words-4)])
+
+# create a function to find embeddings that are close to the desired 
+# word, using cosine similarity to determine closeness
+close_embeddings <- function(search_word, embeddings) {
+  result <- embeddings[search_word, , drop=FALSE] %>% sim2(embeddings, y=., method="cosine")
+  result[,1] %>% sort(decreasing=TRUE) %>% head(n=6)
+}
+```
+
+The words "awful", "mediocre", "perfect" and "favorite" are some positive and negative words that could be found in a movie review. These test words are ysed to qualitatively test the embedding model by examining which words are found to be close to the test words.
+
+```{r}
+close_embeddings("awful", embedding_weights)
+close_embeddings("mediocre", embedding_weights)
+close_embeddings("perfect", embedding_weights)
+close_embeddings("favorite", embedding_weights)
+```
+Some related words are found, but there are some other words that don't seem to be very related. Overall the results don't appear very good, so it seems embeddings using only 2 dimensions is not adequate despite the high accuracy found on the test set.
+
+[@yin2018dimensionality] states that selecting the number of dimensions is often done ad hoc or by using grid search, with a common method being to train embeddings of different dimensions and evaluate them models using a functionality test like word analogy. A simiar method was used here on a smaller scale where the embedding model was retrained using a larger number of dimensions and the performance of the related words test was compared. There was insufficient time to test many model variations, but it was important to test a larger number of dimensions to compare to the 2 dimension model. The test accuracy for the model previously trained with 7 dimensions was fairly close to the accuracy for 2 dimensions, so that embedding length was tested next.
+
+```{r}
+best_num_dimensions = 7
+
+imdb_embedding_model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
+  layer_flatten() %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+imdb_embedding_model %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("acc")
+)
+
+imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+  imdb_train_x, imdb_train_y, verbose=0,
+  epochs = 6,
+  batch_size = 32,
+  validation_split = 0.2
+)
+  
+imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+```
+
+Here are the same positive and negative words that were previously tested:
+
+```{r}
+embedding_weights <- get_weights(imdb_embedding_model)[[1]] 
+rownames(embedding_weights) = c("*","*","*","*", top_words[1:(max_vocab_words-4)])
+
+close_embeddings("awful", embedding_weights)
+close_embeddings("mediocre", embedding_weights)
+close_embeddings("perfect", embedding_weights)
+close_embeddings("favorite", embedding_weights)
+```
+These results are much better than the 2 dimension model, so it seems test accuracy isn't a good method to determine how many dimensions should be included in the embedding model.
+
+Next, the number of epochs used in training will be evaluated to see how that impacts the model performance.
+
+```{r}
+# Now that we know how many dimensions gives the greatest accuracy, find the number of epochs so model doesn't overfit
+set.seed(23)
+imdb_embedding_model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
   layer_flatten() %>%
   layer_dense(units = 1, activation = "sigmoid")
 
@@ -361,16 +290,9 @@ imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_te
 ```
 
 ![Training Metrics](training_plot.png)
-
-```{r}
-# val_acc drops at epoch 6, so stop at epoch 5 to avoid overfitting
-best_num_epochs <- 5
-```
-
-```{r}
-#line = imdb_train_x[1,]
-#imdb_translate = data.frame(word=names(dataset_imdb_word_index()), 
-```
+This keras graph of the accuracy of the training data (blue) vs. the testing data (green) shows that the testing accuracy starts to flatten at epoch 6, so it appears 6 epochs is effective. This is the number of epochs previously used in training, so the best model remains 7 dimensions trained with 6 epochs.
 
 ### Conclusion
+
+minor thought to include in the conclussion Ibrahim, the results are fairly good considering the model was trained on only the top 5000 most common words, the dataset was minimally processed, and only the first 300 words of the review were considered.
 
