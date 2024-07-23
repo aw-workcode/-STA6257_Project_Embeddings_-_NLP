@@ -50,6 +50,71 @@ Our two popular pretrained word  methods were each trained on different datasets
 
 ## 2. Methods
 
+Neural networks are a type of algorithm that mimics the structure and function 
+of the human brain. Their goal is to create an artificial system that can process
+and analyze data in a similar way to the human brain. There are
+different types of neural networks but there are some common elements
+between most of them. Those elements are:
+
+-   Artificial Neurons
+-   Layers
+
+We will be focusing on layers since that's where embeddings come in. Neural
+networks usually have three types of layers. Those layers are the input layer,
+hidden layers, and the output layer.
+
+![](nnLayers.png){fig-align="center"}
+
+Inside of the hidden layers exists the embedding layer.
+
+![](embLayer.png){fig-align="center"}
+
+The embedding layers are a crucial part of the process for any machine learning
+and natural language processing capabilities. Embeddings capture complex relationships and
+semantics into dense vectors which are more suitable for machine
+learning and data processing applications. They map words or phrases into a corresponding
+vector of real numbers which can be used to find word predictions and compare the 
+similarities and semantics between words. They make high-dimensional data like words readable
+to our algorythm/model. Embeddings also reduce the storage requirements,
+improve the computational efficiency, and makes sense of unstructured data. 
+![](How-Embeddings-Work.jpg){fig-align="center"}
+
+In the process of NLP and sentiment analysis, after the words/phrases have been vectorized,
+we need a way to determine how closely related two vectors are. That is where the 
+Cosine Similarity comes in. This method mathematically measures the cosine of 
+the angle between two vectors projected in an N-dimensional vector space. 
+The smaller the angle the higher the similarity between the two vectors. With that information
+and the use of a neural network we are able to classify and determine the sentiment of data points.
+
+![](cosine.jpg){fig-align="center"}
+
+
+- Embedding Layer:
+  - We use an embedding layer in our sentiment analysis model to transform words into numerical representations that our neural network can process. This layer converts each word into a dense vector of fixed size, where the position and direction of the vector capture the word's semantic meaning in relation to other words. By doing so, it allows the model to recognize and learn meaningful relationships and similarities between words, such as associating synonyms like "happy" and "joyful" with similar vectors. This approach also reduces the dimensionality of the input data compared to large, sparse one-hot encoded vectors, making the model more efficient and faster to train. Moreover, since the embedding layer learns from the data itself, it adapts and refines the word vectors during training to better capture context and important patterns, improving the model's ability to accurately classify the sentiment of movie reviews. Overall, the embedding layer plays a crucial role in bridging the gap between textual data and numerical computations, enhancing the model's performance and understanding of language nuances.
+
+- Flatten Layer:
+  - The flattening layer takes a multi-dimensional input and reshapes it into a single dimension. If the output of the embedding layer is a sequence of vectors $[v_1, v_2, ..... ,v_T]$ where T is the maximum length of sequences (`max_words`), the flatten layer converts it into a single vector:
+  - Flatten Operation:
+    - ${Flatten}(v_1, v_2, ..... ,v_T) = [v_{1,1}, v_{1,2}, ..... ,v_T, D]$
+    - Where $v_{i,j}$ denotes the j-th component of the i-th vector.
+
+- Dense Layer (Logistic Regression):
+  - The dense layer with a sigmoid activation function is a logistic regression model used for binary classification. The logistic regression model outputs a probability that the input belongs to a positive class.
+  - $y=\sigma(W⋅z+b)$
+  - Where:
+    - z is the flattened input vector.
+    - W is the weight vector.
+    - b is the bias term.
+    - $\sigma(x) = \frac{1}{1+e^{-x}}$ is the sigmoid function.
+
+- Cosine Similarity:
+  - Cosine similarity measures the cosine of the angle between two non-zero vectors, providing a measure of similarity.
+  - $cosine\_similarity(u,v) = \frac{u.v}{||u|| ||v||}$
+  - Where:
+    - $u.v$ is the dot product of vectors u and v.
+    - $||u||$ and $||v||$ are the magnitudes of u and v.
+  - Cosine similarity is used in the `close_embeddings` function to find the words whose embeddings are closest to a given word in the embedding space.
+
 
 ## 3. Analysis and Results
 ### 3.1 Dataset Description
@@ -294,5 +359,57 @@ imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_te
 ![Training Metrics](training_plot.png)
 This keras graph of the accuracy of the training data (blue) vs. the testing data (green) shows that the testing accuracy starts to flatten at epoch 6, so it appears 6 epochs is effective. This is the number of epochs previously used in training, so the best model remains 7 dimensions trained with 6 epochs.
 
+### Data and Visualization
+```{r Umap_dataframe}
+#install.packages("umap")
+library(umap)
+df_embedding_weights <- as.data.frame(embedding_weights, stringsAsFactors = FALSE)
+
+df_embedding_weights <- cbind('words' = rownames(df_embedding_weights),df_embedding_weights)
+rownames(df_embedding_weights) <- 1:nrow(df_embedding_weights)
+```
+
+```{r Umap}
+library(ggplot2)
+ggplot(df_embedding_weights) +
+      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 0.05)+
+      labs(title = "Words embedding in 2D using UMAP")+
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
+```{r Partial-Umap}
+
+ggplot(df_embedding_weights[df_embedding_weights$V1 > -.005 & df_embedding_weights$V1 < .005 & df_embedding_weights$V2 > -.5,]) +
+      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 2) +
+      geom_text(aes(V1, V2, label = words), size = 2.5, vjust=-1, hjust=0) +
+      labs(title = "embedding in 2D using UMAP - partial view") +
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
+```{r Umap-angry}
+# Step 1: Select the embedding for the word "angry"
+words <- embedding_weights["angry", , drop = FALSE]
+
+# Step 2: Compute cosine similarity
+cos_sim <- sim2(x = embedding_weights, y = words, method = "cosine", norm = "l2")
+
+# Step 3: Select top 25 most similar words
+select <- data.frame(words = rownames(as.data.frame(head(sort(cos_sim[, 1], decreasing = TRUE), 30))))
+
+# Step 4: Join data frames
+selected_words <- df_embedding_weights %>% inner_join(y = select, by = "words")
+
+
+ggplot(selected_words, aes(x = V1, y = V2, colour = words == 'angry')) + 
+      geom_point(show.legend = FALSE) + 
+      scale_color_manual(values = c('black', 'red')) +
+      geom_text(aes(V1, V2, label = words), show.legend = FALSE, size = 2.5, vjust=-1.5, hjust=0) +
+      labs(title = "embedding of words related to 'angry'") +
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
 
 ### Conclusion
+The development and analysis of the word embedding model for classifying IMDB movie reviews demonstrated promising results. The optimal number of embedding dimensions was identified as 7, achieving an accuracy of 87.34% on the test dataset. This was determined through extensive experimentation, revealing that higher dimensions, such as 7, provided competitive and consistent accuracy. The model's performance is noteworthy, given the constraints of training on only the top 5000 most common words, minimal data preprocessing, and limiting input sequences to the first 500 words of each review. These factors illustrate the model's robustness and effectiveness in capturing the semantic relationships within the data.
+
+Furthermore, the embedding similarity results showed that the model could meaningfully capture semantic relationships, as evidenced by the coherent and relevant similar words found for terms like "awful," "mediocre," "perfect," and "favorite." The final training session, capped at 10 epochs, ensured the model did not overfit, maintaining its accuracy and reliability. Overall, the model's strong performance under constrained conditions highlights its potential for practical applications in sentiment analysis, offering an efficient and effective solution for understanding and categorizing movie reviews.
