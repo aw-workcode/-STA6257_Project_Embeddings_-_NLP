@@ -20,46 +20,206 @@ editor:
 
 ## 1. Introduction
 
-Sentiment Analysis (SA) is a branch of Natural Language Processing (NLP) that computationally extracts the “treatment of opinions, sentiments and subjectivity” [@MEDHAT20141093] of digital text. 
+Sentiment Analysis (SA) is a branch of Natural Language Processing (NLP)
+that computationally extracts the “treatment of opinions, sentiments and
+subjectivity” [@MEDHAT20141093] of digital text.
 
 ### 1.1 Sentiment Analysis
-Sentiment analysis, a crucial facet of natural language processing (NLP), involves interpreting and classifying emotions within text data. By understanding public opinion, businesses can refine marketing strategies, improve products, and enhance customer satisfaction. The rapid growth of social media and e-commerce platforms has amplified the importance of sentiment analysis, enabling real-time feedback and insights into consumer behavior.
 
-The study by Hasan, Maliha, and Arifuzzaman (2019) demonstrates the potential of Twitter data for sentiment analysis, highlighting the application of NLP frameworks to gauge public opinion on products. Their methodology integrates the Bag of Words (BoW) and Term Frequency-Inverse Document Frequency (TF-IDF) models, coupled with logistic regression, to classify tweets as positive or negative with an accuracy of 85.25%. This approach underscores the benefits of combining BoW and TF-IDF to enhance sentiment analysis precision. [@9036670]
+Sentiment analysis, a crucial facet of natural language processing
+(NLP), involves interpreting and classifying emotions within text data.
+By understanding public opinion, businesses can refine marketing
+strategies, improve products, and enhance customer satisfaction. The
+rapid growth of social media and e-commerce platforms has amplified the
+importance of sentiment analysis, enabling real-time feedback and
+insights into consumer behavior.
 
-In a similar vein, Kathuria, Sethi, and Negi (2022) explored sentiment analysis on e-commerce reviews, employing machine learning (ML) models such as logistic regression, AdaBoost, SVM, Naive Bayes, and random forest. Utilizing the Women’s E-commerce Clothing Reviews dataset, they analyzed review texts, ratings, and recommendations to understand consumer behavior. Their findings underscore the significance of electronic word-of-mouth (eWOM) in shaping customer attitudes and product sales, providing e-commerce businesses with actionable insights to improve marketing strategies and customer satisfaction. [@10093674]
+The study by Hasan, Maliha, and Arifuzzaman (2019) demonstrates the
+potential of Twitter data for sentiment analysis, highlighting the
+application of NLP frameworks to gauge public opinion on products. Their
+methodology integrates the Bag of Words (BoW) and Term Frequency-Inverse
+Document Frequency (TF-IDF) models, coupled with logistic regression, to
+classify tweets as positive or negative with an accuracy of 85.25%. This
+approach underscores the benefits of combining BoW and TF-IDF to enhance
+sentiment analysis precision. [@9036670]
 
-The foundational work by Nasukawa and Yi (2003) emphasizes a more granular approach to sentiment analysis, focusing on extracting sentiments linked to specific subjects rather than entire documents. Their prototype system, employing a syntactic parser and a sentiment lexicon, achieves high precision in detecting sentiments in web pages and news articles. By concentrating on local sentiment expressions, their method offers detailed insights into specific opinions, aiding businesses in monitoring public opinion and addressing unfavorable sentiments effectively. [@nasukawa2003sentiment]
+In a similar vein, Kathuria, Sethi, and Negi (2022) explored sentiment
+analysis on e-commerce reviews, employing machine learning (ML) models
+such as logistic regression, AdaBoost, SVM, Naive Bayes, and random
+forest. Utilizing the Women’s E-commerce Clothing Reviews dataset, they
+analyzed review texts, ratings, and recommendations to understand
+consumer behavior. Their findings underscore the significance of
+electronic word-of-mouth (eWOM) in shaping customer attitudes and
+product sales, providing e-commerce businesses with actionable insights
+to improve marketing strategies and customer satisfaction. [@10093674]
 
-Collectively, these studies highlight the evolution and application of sentiment analysis using NLP, illustrating its critical role in extracting valuable insights from vast amounts of text data. By leveraging advanced NLP techniques and ML models, businesses can gain a deeper understanding of consumer sentiment, thereby enhancing their strategic decision-making processes.
+The foundational work by Nasukawa and Yi (2003) emphasizes a more
+granular approach to sentiment analysis, focusing on extracting
+sentiments linked to specific subjects rather than entire documents.
+Their prototype system, employing a syntactic parser and a sentiment
+lexicon, achieves high precision in detecting sentiments in web pages
+and news articles. By concentrating on local sentiment expressions,
+their method offers detailed insights into specific opinions, aiding
+businesses in monitoring public opinion and addressing unfavorable
+sentiments effectively. [@nasukawa2003sentiment]
+
+Collectively, these studies highlight the evolution and application of
+sentiment analysis using NLP, illustrating its critical role in
+extracting valuable insights from vast amounts of text data. By
+leveraging advanced NLP techniques and ML models, businesses can gain a
+deeper understanding of consumer sentiment, thereby enhancing their
+strategic decision-making processes.
 
 ### 1.2 Vector Embeddings In Natural Language Processing
-One technique for encoding or describing the sentiment of a word or group of words is to use vector embeddings (or embeddings). Before discussing the use of embeddings for SA, it’s important to first understand what embeddings are. Embeddings are said to be “one of the most important topics of interest” in NLP in the last decade [@camacho2020embeddings].
+
+One technique for encoding or describing the sentiment of a word or
+group of words is to use vector embeddings (or embeddings). Before
+discussing the use of embeddings for SA, it’s important to first
+understand what embeddings are. Embeddings are said to be “one of the
+most important topics of interest” in NLP in the last decade
+[@camacho2020embeddings].
 
 An early way to represent a word for NLP sy
 
-The use of word embeddings in NLP is an improvement over representing words as an index into a vocabulary since embeddings can encode relationships or similarity of words. For example, when using a simple index into a vocabulary to represent a word, “boy” would have one index and “man” would have another index, but there is no indication that these two words are related. Vocabulary indexes also fail to represent that a word may have multiple meanings. For example, “mouse” would be one entry in a vocabulary, but would fail to indicate if the word refers to an animal, or computer input device [@camacho2020embeddings].
+The use of word embeddings in NLP is an improvement over representing
+words as an index into a vocabulary since embeddings can encode
+relationships or similarity of words. For example, when using a simple
+index into a vocabulary to represent a word, “boy” would have one index
+and “man” would have another index, but there is no indication that
+these two words are related. Vocabulary indexes also fail to represent
+that a word may have multiple meanings. For example, “mouse” would be
+one entry in a vocabulary, but would fail to indicate if the word refers
+to an animal, or computer input device [@camacho2020embeddings].
 
-Word embedding models can capture fairly detailed semantic and syntactic patterns, however how these patterns are encoded in a vector is often unclear [@pennington2014glove]. Unlike indexes into a vocabulary, word embeddings have the advantage of being able to be compared for similarity. Comparison is often done either by measuring distance between vectors, or the angle between vectors [@pennington2014glove]. [@mikolov2013word2vec] discovered in their famous “Word2Vec” model that simple vector arithmetic over their embedding model allowed evaluation of analogies. For example, $vector(king) - vector(man) + vector (woman)$ resulted in a vector that was closest to the vector for “queen”.
+Word embedding models can capture fairly detailed semantic and syntactic
+patterns, however how these patterns are encoded in a vector is often
+unclear [@pennington2014glove]. Unlike indexes into a vocabulary, word
+embeddings have the advantage of being able to be compared for
+similarity. Comparison is often done either by measuring distance
+between vectors, or the angle between vectors [@pennington2014glove].
+[@mikolov2013word2vec] discovered in their famous “Word2Vec” model that
+simple vector arithmetic over their embedding model allowed evaluation
+of analogies. For example, $vector(king) - vector(man) + vector (woman)$
+resulted in a vector that was closest to the vector for “queen”.
 
-Embedding models also exist for more complicated NLP problems than word representations. Sentence embedding models can be built on top of word embeddings models. This is an improvement over using “bag of words” representations for sections of natural language longer than a single word. Bag of word models often use vectors of one-hot encoding, however these representations have very high dimensionality and sparseness. These issues led researchers to look for alternatives and they found embeddings to be a valuable technique [@pilehvar2020embeddings]. Sentence embeddings compose word embeddings for each of the words of a sentence into a single vector that encodes semantic and syntactic properties of the sentence and can be compared for similarity across those properties [@kiros2015skip]. As with using bag of words to encode sentences, bag of word models are similarly poor representations of documents for many NLP tasks. In such cases, encoding the document into a document embedding is a useful alternative representation [@pilehvar2020embeddings]. Since bag of word models ignore word ordering, they are a problematic representation for many NLP tasks, including sentiment analysis [@pilehvar2020embeddings], which will be the focus for the rest of this work.
+Embedding models also exist for more complicated NLP problems than word
+representations. Sentence embedding models can be built on top of word
+embeddings models. This is an improvement over using “bag of words”
+representations for sections of natural language longer than a single
+word. Bag of word models often use vectors of one-hot encoding, however
+these representations have very high dimensionality and sparseness.
+These issues led researchers to look for alternatives and they found
+embeddings to be a valuable technique [@pilehvar2020embeddings].
+Sentence embeddings compose word embeddings for each of the words of a
+sentence into a single vector that encodes semantic and syntactic
+properties of the sentence and can be compared for similarity across
+those properties [@kiros2015skip]. As with using bag of words to encode
+sentences, bag of word models are similarly poor representations of
+documents for many NLP tasks. In such cases, encoding the document into
+a document embedding is a useful alternative representation
+[@pilehvar2020embeddings]. Since bag of word models ignore word
+ordering, they are a problematic representation for many NLP tasks,
+including sentiment analysis [@pilehvar2020embeddings], which will be
+the focus for the rest of this work.
 
 ### 1.3 Using Embeddings For Sentiment Analysis
-Now that we have touched on the topics of sentiment analysis and embeddings, let's dive into the use of embeddings for sentiment analysis. The performance of natural language processing (NLP) tasks including question answering & sentiment analysis, has significantly improved due to word embedding and deep learning models over the years [@10255396]. Ultimately our goal when converting text into embeddings is to be able to extract the meaning of the words in the text and allow our model to learn from it. There are two very popular word embedding methods, of which we have already touched upon slightly, the two methods are Word2Vec and Global Vectors (GloVe). Using one of these two methods along with an embedding model we will be able to categorize data into positive, negative, or neutral sentiments by evaluating the overall sentiment of the input data. This branch of NLP has been increasingly becoming more and more popular, specially for processing and gathering the sentiment of posts on social media sites, forums, an the web in general. 
 
-Our two popular pretrained word  methods were each trained on different datasets. Word2Vec was trained on a portion of the Google News dataset with 300-dimensional vectors and GloVe was trained on 6 billion tokens, 400k vocabulary words, and 100-dimensional vectors from Wikipedia 2014 [@10543279]. The drawback to most embedding based models is that they typically only utilize pre-trained word embeddings that can not capture the effective information in the text or input,  such as the contextual sentiment information of both targets and aspects [@9397340]. This is problematic because this leads words with similar contexts but opposite sentiment (good and bad for example) to be mapped to neighboring word vectors making our models less accurate[@7296633]. We will be tackling this issue more in depth in this paper and exploring other forms of embeddings for sentiment analysis and models along the way!
+Now that we have touched on the topics of sentiment analysis and
+embeddings, let's dive into the use of embeddings for sentiment
+analysis. The performance of natural language processing (NLP) tasks
+including question answering & sentiment analysis, has significantly
+improved due to word embedding and deep learning models over the years
+[@10255396]. Ultimately our goal when converting text into embeddings is
+to be able to extract the meaning of the words in the text and allow our
+model to learn from it. There are two very popular word embedding
+methods, of which we have already touched upon slightly, the two methods
+are Word2Vec and Global Vectors (GloVe). Using one of these two methods
+along with an embedding model we will be able to categorize data into
+positive, negative, or neutral sentiments by evaluating the overall
+sentiment of the input data. This branch of NLP has been increasingly
+becoming more and more popular, specially for processing and gathering
+the sentiment of posts on social media sites, forums, an the web in
+general.
 
+Our two popular pretrained word methods were each trained on different
+datasets. Word2Vec was trained on a portion of the Google News dataset
+with 300-dimensional vectors and GloVe was trained on 6 billion tokens,
+400k vocabulary words, and 100-dimensional vectors from Wikipedia 2014
+[@10543279]. The drawback to most embedding based models is that they
+typically only utilize pre-trained word embeddings that can not capture
+the effective information in the text or input, such as the contextual
+sentiment information of both targets and aspects [@9397340]. This is
+problematic because this leads words with similar contexts but opposite
+sentiment (good and bad for example) to be mapped to neighboring word
+vectors making our models less accurate[@7296633]. We will be tackling
+this issue more in depth in this paper and exploring other forms of
+embeddings for sentiment analysis and models along the way!
 
 ## 2. Methods
+Neural networks are a type of algorithm that mimics the structure and function 
+of the human brain. Their goal is to create an artificial system that can process
+and analyze data in a similar way to the human brain. There are
+different types of neural networks but there are some common elements
+between most of them. Those elements are:
 
+-   Artificial Neurons
+-   Layers
 
+We will be focusing on layers since that's where embeddings come in. Neural
+networks usually have three types of layers. Those layers are the input layer,
+hidden layers, and the output layer.
 
+![](nnLayers.png){fig-align="center"}
 
+Inside of the hidden layers exists the embedding layer.
 
+![](embLayer.png){fig-align="center"}
+
+The embedding layers are a crucial part of the process for any machine learning
+and natural language processing capabilities. Embeddings capture complex relationships and
+semantics into dense vectors which are more suitable for machine
+learning and data processing applications. They map words or phrases into a corresponding
+vector of real numbers which can be used to find word predictions and compare the 
+similarities and semantics between words. They make high-dimensional data like words readable
+to our algorythm/model. Embeddings also reduce the storage requirements,
+improve the computational efficiency, and makes sense of unstructured data. 
+![](How-Embeddings-Work.jpg){fig-align="center"}
+
+In the process of NLP and sentiment analysis, after the words/phrases have been vectorized,
+we need a way to determine how closely related two vectors are. That is where the 
+Cosine Similarity comes in. This method mathematically measures the cosine of 
+the angle between two vectors projected in an N-dimensional vector space. 
+The smaller the angle the higher the similarity between the two vectors. With that information
+and the use of a neural network we are able to classify and determine the sentiment of data points.
+
+![](cosine.jpg){fig-align="center"}
 
 ## 3. Analysis and Results
+
 ### 3.1 Dataset Description
-For sentiment analysis, we will be using a data set that contains computer generated tweets for training data and another collection of tweets for testing. Any tweet with positive emoticons was assumed to be positive, and any tweet with negative emotions was assumed to be negative. The emoticons were removed from the dataset. The dataset was last updated 4 years ago and was posted by Abhishek Shrivastava. The computer-generated tweets that make up the training data are organized into ten columns. The first column is textID used to uniquely identify each tweet in the dataset. The second column is the text which is the entire tweet used. The third column is the selected text of the tweet used to perform sentiment analysis. The fourth column is the labeled sentiment of the tweet, which is classified as neutral, negative, or positive. The fifth column is the time of day the tweet was posted which is classified as morning, noon, or night. The sixth column stores the age range that the user is in. The seventh column is the country the tweet was posted from when the user posted. The eighth column is the given population of the country. The ninth column is the given land area of the country. The tenth column is the given population density of the country. During the literature review process, twitter datasets were often used for sentiment analysis. Therefore, this dataset of generated tweets seems appropriate for our sentiment analysis research project. [@Khurana2023], [@Sawicki2023], [@9036670], [@Chong2014].
+
+For sentiment analysis, we will be using a data set that contains
+computer generated tweets for training data and another collection of
+tweets for testing. Any tweet with positive emoticons was assumed to be
+positive, and any tweet with negative emotions was assumed to be
+negative. The emoticons were removed from the dataset. The dataset was
+last updated 4 years ago and was posted by Abhishek Shrivastava. The
+computer-generated tweets that make up the training data are organized
+into ten columns. The first column is textID used to uniquely identify
+each tweet in the dataset. The second column is the text which is the
+entire tweet used. The third column is the selected text of the tweet
+used to perform sentiment analysis. The fourth column is the labeled
+sentiment of the tweet, which is classified as neutral, negative, or
+positive. The fifth column is the time of day the tweet was posted which
+is classified as morning, noon, or night. The sixth column stores the
+age range that the user is in. The seventh column is the country the
+tweet was posted from when the user posted. The eighth column is the
+given population of the country. The ninth column is the given land area
+of the country. The tenth column is the given population density of the
+country. During the literature review process, twitter datasets were
+often used for sentiment analysis. Therefore, this dataset of generated
+tweets seems appropriate for our sentiment analysis research project.
+[@Khurana2023], [@Sawicki2023], [@9036670], [@Chong2014].
 
 #### Install and Import Packages
 
@@ -94,17 +254,31 @@ install_keras(envname="r-tensorflow")
 
 #### Loading and preparing Training and Test Data
 
-
-
 ### Data and Visualization
 
-Load the tensorflow IMDB review dataset. Only the top most common 5000 words will be included. All other words will be replaced with a token representing an unknown word. Up to the first 500 words in a review are included in the training and test sets.
+Load the tensorflow IMDB review dataset. Only the top most common 5000
+words will be included. All other words will be replaced with a token
+representing an unknown word. Up to the first 500 words in a review are
+included in the training and test sets.
 
-The neural net will be expecting batches of training examples that are 500 words long, so pad any observations shorter than 500 words with a token representing the padding word to get to the required 500 word length.
+The neural net will be expecting batches of training examples that are
+500 words long, so pad any observations shorter than 500 words with a
+token representing the padding word to get to the required 500 word
+length.
 
-Since neural nets require numeric data, all observations must be vectorized. Vectorization is a pre-processing method that represents sequences of words as sequences of numbers. The IMDB review dataset that is used in this project is already vectorized, but it's important to understand the vectorization process in order to understand how neural nets can be used to process text data.
+Since neural nets require numeric data, all observations must be
+vectorized. Vectorization is a pre-processing method that represents
+sequences of words as sequences of numbers. The IMDB review dataset that
+is used in this project is already vectorized, but it's important to
+understand the vectorization process in order to understand how neural
+nets can be used to process text data.
 
-The vectorization process starts by assigning each word that appears in the training set with a unique number. This produces the dataset's vocabularly and the numeric substitution value. Then each word in the original text observation is replaced with the substitution number assigned to that word. Every observation is translated in this same way from a string to a vector of integers. An example follows below:
+The vectorization process starts by assigning each word that appears in
+the training set with a unique number. This produces the dataset's
+vocabularly and the numeric substitution value. Then each word in the
+original text observation is replaced with the substitution number
+assigned to that word. Every observation is translated in this same way
+from a string to a vector of integers. An example follows below:
 
 Observation #1: "this is fun"
 
@@ -112,14 +286,18 @@ Observation #2: "fun times ahead"
 
 Observation #3: "fun is ahead of times"
 
-Based on the three above observations, there are six unique words in the vocabularly. These six unique words would each be assigned a numeric value. Thus the vocabulary list would be [1-this, 2-is, 3-fun, 4-times, 5-ahead, 6-of]. To vectorize the tweets, the numeric values for each of those words are added to a integer vector. The vectorized observations are shown below.
+Based on the three above observations, there are six unique words in the
+vocabularly. These six unique words would each be assigned a numeric
+value. Thus the vocabulary list would be \[1-this, 2-is, 3-fun, 4-times,
+5-ahead, 6-of\]. To vectorize the tweets, the numeric values for each of
+those words are added to a integer vector. The vectorized observations
+are shown below.
 
-Observation #1 vectorized: [1,2,3]
+Observation #1 vectorized: \[1,2,3\]
 
-Observation #2 vectorized: [3,4,5]
+Observation #2 vectorized: \[3,4,5\]
 
-Observation #3 vectorized: [3,2,5,6,4]
-
+Observation #3 vectorized: \[3,2,5,6,4\]
 
 ```{r}
 max_vocab_words <- 5000
@@ -137,14 +315,26 @@ imdb_test_x <- pad_sequences(imdb_test_x, maxlen = max_words)
 
 ### Statistical Modeling
 
-In this section a neural net model will be implemented using the keras package, which uses a tensorflow backend, to classify the sentiment variable in the IMDB movie reviews. 
+In this section a neural net model will be implemented using the keras
+package, which uses a tensorflow backend, to classify the sentiment
+variable in the IMDB movie reviews.
 
+The neural network has a simple architecture of 500 inputs to the
+embedding layer, so there is a maximum length of 500 words for a review.
 
-The neural network has a simple architecture of 500 inputs to the embedding layer, so there is a maximum length of 500 words for a review. 
+The number of dimensions of the output embedding will be varied and
+tested as part of the modeling. The number of dimensions is an important
+hyperparameter since it will control how much compression of the
+training set occurs. A small number of dimensions results in a higher
+amount of compression, whereas a large number of dimensions allows for
+more detail to be captured by the embeddings. However, a larger number
+of dimensions can also lead to overfitting [@yin2018dimensionality].
 
-The number of dimensions of the output embedding will be varied and tested as part of the modeling. The number of dimensions is an important hyperparameter since it will control how much compression of the training set occurs. A small number of dimensions results in a higher amount of compression, whereas a large number of dimensions allows for more detail to be captured by the embeddings. However, a larger number of dimensions can also lead to overfitting [@yin2018dimensionality]. 
-
-Now to train the embedding model. [@DeepLearningRBook] and [@Monroe] were important resources in coding the embedding model. As a first step, the model will be trained repeatedly with a different number of dimensions each time. Models will be trained using from 2 to 7 dimensions, and the testing accuracy will be recorded for each model.
+Now to train the embedding model. [@DeepLearningRBook] and [@Monroe]
+were important resources in coding the embedding model. As a first step,
+the model will be trained repeatedly with a different number of
+dimensions each time. Models will be trained using from 2 to 7
+dimensions, and the testing accuracy will be recorded for each model.
 
 ```{r}
 max_vector_dimensions <- 7
@@ -175,9 +365,20 @@ for (num_dims in rep(2:max_vector_dimensions)) {
 names(accuracy_by_dimensions) <- rep(2:max_vector_dimensions)
 accuracy_by_dimensions
 ```
-Perhaps unexpectedly, an embedding of just 2 dimensions had the best accuracy. That may be the highest accuracy in predicting the binary sentiment classification, but the question is does that over compress the data and fail to represent the higher order patterns we hope the embedding models? As [@yin2018dimensionality] points out, "the impact of dimensionality on word embedding has not yet been fully understood...a word embedding with a small dimensionality is typically not expressive enough to capture all possible word relations, whereas one with a very large dimensionality suffers from over-fitting." 
 
-The model with just 2 dimensions is tested to see how well it does on finding similar words, where similar is in the context of the sentiment of a movie review.
+Perhaps unexpectedly, an embedding of just 2 dimensions had the best
+accuracy. That may be the highest accuracy in predicting the binary
+sentiment classification, but the question is does that over compress
+the data and fail to represent the higher order patterns we hope the
+embedding models? As [@yin2018dimensionality] points out, "the impact of
+dimensionality on word embedding has not yet been fully understood...a
+word embedding with a small dimensionality is typically not expressive
+enough to capture all possible word relations, whereas one with a very
+large dimensionality suffers from over-fitting."
+
+The model with just 2 dimensions is tested to see how well it does on
+finding similar words, where similar is in the context of the sentiment
+of a movie review.
 
 ```{r}
 best_num_dimensions = 2
@@ -221,7 +422,10 @@ close_embeddings <- function(search_word, embeddings) {
 }
 ```
 
-The words "awful", "mediocre", "perfect" and "favorite" are some positive and negative words that could be found in a movie review. These test words are ysed to qualitatively test the embedding model by examining which words are found to be close to the test words.
+The words "awful", "mediocre", "perfect" and "favorite" are some
+positive and negative words that could be found in a movie review. These
+test words are ysed to qualitatively test the embedding model by
+examining which words are found to be close to the test words.
 
 ```{r}
 close_embeddings("awful", embedding_weights)
@@ -229,9 +433,23 @@ close_embeddings("mediocre", embedding_weights)
 close_embeddings("perfect", embedding_weights)
 close_embeddings("favorite", embedding_weights)
 ```
-Some related words are found, but there are some other words that don't seem to be very related. Overall the results don't appear very good, so it seems embeddings using only 2 dimensions is not adequate despite the high accuracy found on the test set.
 
-[@yin2018dimensionality] states that selecting the number of dimensions is often done ad hoc or by using grid search, with a common method being to train embeddings of different dimensions and evaluate them models using a functionality test like word analogy. A simiar method was used here on a smaller scale where the embedding model was retrained using a larger number of dimensions and the performance of the related words test was compared. There was insufficient time to test many model variations, but it was important to test a larger number of dimensions to compare to the 2 dimension model. The test accuracy for the model previously trained with 7 dimensions was fairly close to the accuracy for 2 dimensions, so that embedding length was tested next.
+Some related words are found, but there are some other words that don't
+seem to be very related. Overall the results don't appear very good, so
+it seems embeddings using only 2 dimensions is not adequate despite the
+high accuracy found on the test set.
+
+[@yin2018dimensionality] states that selecting the number of dimensions
+is often done ad hoc or by using grid search, with a common method being
+to train embeddings of different dimensions and evaluate them models
+using a functionality test like word analogy. A simiar method was used
+here on a smaller scale where the embedding model was retrained using a
+larger number of dimensions and the performance of the related words
+test was compared. There was insufficient time to test many model
+variations, but it was important to test a larger number of dimensions
+to compare to the 2 dimension model. The test accuracy for the model
+previously trained with 7 dimensions was fairly close to the accuracy
+for 2 dimensions, so that embedding length was tested next.
 
 ```{r}
 best_num_dimensions = 7
@@ -257,7 +475,8 @@ imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
 imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
 ```
 
-Here are the same positive and negative words that were previously tested:
+Here are the same positive and negative words that were previously
+tested:
 
 ```{r}
 embedding_weights <- get_weights(imdb_embedding_model)[[1]] 
@@ -268,9 +487,13 @@ close_embeddings("mediocre", embedding_weights)
 close_embeddings("perfect", embedding_weights)
 close_embeddings("favorite", embedding_weights)
 ```
-These results are much better than the 2 dimension model, so it seems test accuracy isn't a good method to determine how many dimensions should be included in the embedding model.
 
-Next, the number of epochs used in training will be evaluated to see how that impacts the model performance.
+These results are much better than the 2 dimension model, so it seems
+test accuracy isn't a good method to determine how many dimensions
+should be included in the embedding model.
+
+Next, the number of epochs used in training will be evaluated to see how
+that impacts the model performance.
 
 ```{r}
 # Now that we know how many dimensions gives the greatest accuracy, find the number of epochs so model doesn't overfit
@@ -296,10 +519,15 @@ imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
 imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
 ```
 
-![Training Metrics](training_plot.png)
-This keras graph of the accuracy of the training data (blue) vs. the testing data (green) shows that the testing accuracy starts to flatten at epoch 6, so it appears 6 epochs is effective. This is the number of epochs previously used in training, so the best model remains 7 dimensions trained with 6 epochs.
+![Training Metrics](training_plot.png) This keras graph of the accuracy
+of the training data (blue) vs. the testing data (green) shows that the
+testing accuracy starts to flatten at epoch 6, so it appears 6 epochs is
+effective. This is the number of epochs previously used in training, so
+the best model remains 7 dimensions trained with 6 epochs.
 
 ### Conclusion
 
-minor thought to include in the conclussion Ibrahim, the results are fairly good considering the model was trained on only the top 5000 most common words, the dataset was minimally processed, and only the first 300 words of the review were considered.
-
+minor thought to include in the conclussion Ibrahim, the results are
+fairly good considering the model was trained on only the top 5000 most
+common words, the dataset was minimally processed, and only the first
+300 words of the review were considered.
