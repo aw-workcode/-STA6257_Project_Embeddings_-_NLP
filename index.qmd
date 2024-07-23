@@ -256,10 +256,6 @@ tweets seems appropriate for our sentiment analysis research project.
 #| output: false
 #| warning: false
 
-#install.packages('tidyverse', repos = "http://cran.us.r-project.org")
-#install.packages('tm', repos = "http://cran.us.r-project.org")
-#install.packages('SnowballC', repos = "http://cran.us.r-project.org")
-#install.packages('fastDummies', repos = "http://cran.us.r-project.org")
 #install.packages('reticulate', repos = "http://cran.us.r-project.org")
 #install.packages('tensorflow', repos = "http://cran.us.r-project.org")
 #remove.packages("keras")
@@ -267,10 +263,6 @@ tweets seems appropriate for our sentiment analysis research project.
 #install.packages('dplyr', repos = "http://cran.us.r-project.org")
 #install.packages('text2vec', repos = "http://cran.us.r-project.org")
 #install.packages('tidyr', repos = "http://cran.us.r-project.org")
-library(tidyverse)
-library(tm)
-library(SnowballC)
-library(fastDummies)
 
 library(text2vec)
 library(dplyr)
@@ -280,10 +272,6 @@ reticulate::install_python()
 library(keras3)
 install_keras(envname="r-tensorflow")
 ```
-
-#### Loading and preparing Training and Test Data
-
-### Data and Visualization
 
 Load the tensorflow IMDB review dataset. Only the top most common 5000
 words will be included. All other words will be replaced with a token
@@ -546,6 +534,54 @@ imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
 )
   
 imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+```
+### Data and Visualization
+```{r Umap_dataframe}
+#install.packages(umap)
+library(umap)
+df_embedding_weights <- as.data.frame(embedding_weights, stringsAsFactors = FALSE)
+
+df_embedding_weights <- cbind('words' = rownames(df_embedding_weights),df_embedding_weights)
+rownames(df_embedding_weights) <- 1:nrow(df_embedding_weights)
+```
+
+```{r Umap}
+library(ggplot2)
+ggplot(df_embedding_weights) +
+      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 0.05)+
+      labs(title = "Words embedding in 2D using UMAP")+
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
+```{r Partial-Umap}
+
+ggplot(df_embedding_weights[df_embedding_weights$V1 > -.005 & df_embedding_weights$V1 < .005 & df_embedding_weights$V2 > -.5,]) +
+      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 2) +
+      geom_text(aes(V1, V2, label = words), size = 2.5, vjust=-1, hjust=0) +
+      labs(title = "embedding in 2D using UMAP - partial view") +
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
+```{r Umap-angry}
+# Step 1: Select the embedding for the word "angry"
+words <- embedding_weights["angry", , drop = FALSE]
+
+# Step 2: Compute cosine similarity
+cos_sim <- sim2(x = embedding_weights, y = words, method = "cosine", norm = "l2")
+
+# Step 3: Select top 25 most similar words
+select <- data.frame(words = rownames(as.data.frame(head(sort(cos_sim[, 1], decreasing = TRUE), 30))))
+
+# Step 4: Join data frames
+selected_words <- df_embedding_weights %>% inner_join(y = select, by = "words")
+
+
+ggplot(selected_words, aes(x = V1, y = V2, colour = words == 'angry')) + 
+      geom_point(show.legend = FALSE) + 
+      scale_color_manual(values = c('black', 'red')) +
+      geom_text(aes(V1, V2, label = words), show.legend = FALSE, size = 2.5, vjust=-1.5, hjust=0) +
+      labs(title = "embedding of words related to 'angry'") +
+      theme(plot.title = element_text(hjust = .5, size = 14))
 ```
 
 ![Training Metrics](training_plot.png) This keras graph of the accuracy
