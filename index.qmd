@@ -17,6 +17,7 @@ editor:
   markdown: 
     wrap: 72
 ---
+[Slides](slides.html)
 
 ## 1. Introduction
 
