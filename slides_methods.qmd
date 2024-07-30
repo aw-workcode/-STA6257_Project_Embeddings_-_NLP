@@ -1,7 +1,10 @@
 ---
 title: "Using Vector Embeddings For Sentiment Analysis"
 author: "Rod Acosta, Kevin Furbish, Ibrahim Khan, Anthony Washington"
-format: revealjs
+format:
+  revealjs:
+    theme: moon
+    incremental: true 
 course: STA 6257 - Advanced Statistical Modeling
 bibliography: references.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
@@ -13,69 +16,64 @@ editor:
   markdown: 
     wrap: 72
 ---
-## 2. Methods
+# Methods
 
-Neural networks are a type of algorithm that mimics the structure and function 
+## What is a neural Network?
+- A neural network is a type of algorithm that mimics the structure and function 
 of the human brain. Their goal is to create an artificial system that can process
-and analyze data in a similar way to the human brain. There are
-different types of neural networks but there are some common elements
+and analyze data in a similar way.
+- There are different types of neural networks but there are some common elements
 between most of them. Those elements are:
+  - Artificial Neurons
+  - Layers
 
--   Artificial Neurons
--   Layers
-
-We will be focusing on layers since that's where embeddings come in. Neural
-networks usually have three types of layers. Those layers are the input layer,
-hidden layers, and the output layer.
-
+## Neural Network Layers {.smaller}
+- Neural networks usually have three types of layers:
+  - Input Layer
+  - Hidden layers
+  - Output layer
+  
 ![](nnLayers.png){fig-align="center"}
 
-Inside of the hidden layers exists the embedding layer.
+## What are embeddings? {.smaller}
+- Embeddings are a technique that allow us to map words or phrases into a corresponding
+vector of real numbers, where the position and direction of the vector capture the word's
+semantic meaning in relation to other words. 
+- They make high-dimensional data like words readable
+to our algorithm/model and allows our model to recognize and learn meaningful relationships 
+and similarities between words
 
+:::: {.columns}
+::: {.column width="40%"}
 ![](embLayer.png){fig-align="center"}
-
-The embedding layers are a crucial part of the process for any machine learning
-and natural language processing capabilities. Embeddings capture complex relationships and
-semantics into dense vectors which are more suitable for machine
-learning and data processing applications. They map words or phrases into a corresponding
-vector of real numbers which can be used to find word predictions and compare the 
-similarities and semantics between words. They make high-dimensional data like words readable
-to our algorythm/model. Embeddings also reduce the storage requirements,
-improve the computational efficiency, and makes sense of unstructured data. 
+:::
+::: {.column width="60%"}
 ![](How-Embeddings-Work.jpg){fig-align="center"}
+:::
+::::
 
-In the process of NLP and sentiment analysis, after the words/phrases have been vectorized,
-we need a way to determine how closely related two vectors are. That is where the 
-Cosine Similarity comes in. This method mathematically measures the cosine of 
-the angle between two vectors projected in an N-dimensional vector space. 
-The smaller the angle the higher the similarity between the two vectors. With that information
-and the use of a neural network we are able to classify and determine the sentiment of data points.
-
+## Dense Layer & Cosine Similarity {.smaller}
+:::: {.columns}
+::: {.column width="50%"}
+- Cosine Similarity
+  - Measures the cosine of the angle between two non-zero vectors, providing a measure of similarity.
+  - The smaller the angle the higher the similarity between the two vectors.
+  - $cosine\_similarity(u,v) = \frac{u.v}{||u|| ||v||}$
 ![](cosine.jpg){fig-align="center"}
-
-
-- Embedding Layer:
-  - We use an embedding layer in our sentiment analysis model to transform words into numerical representations that our neural network can process. This layer converts each word into a dense vector of fixed size, where the position and direction of the vector capture the word's semantic meaning in relation to other words. By doing so, it allows the model to recognize and learn meaningful relationships and similarities between words, such as associating synonyms like "happy" and "joyful" with similar vectors. This approach also reduces the dimensionality of the input data compared to large, sparse one-hot encoded vectors, making the model more efficient and faster to train. Moreover, since the embedding layer learns from the data itself, it adapts and refines the word vectors during training to better capture context and important patterns, improving the model's ability to accurately classify the sentiment of movie reviews. Overall, the embedding layer plays a crucial role in bridging the gap between textual data and numerical computations, enhancing the model's performance and understanding of language nuances.
-
-- Flatten Layer:
-  - The flattening layer takes a multi-dimensional input and reshapes it into a single dimension. If the output of the embedding layer is a sequence of vectors $[v_1, v_2, ..... ,v_T]$ where T is the maximum length of sequences (`max_words`), the flatten layer converts it into a single vector:
-  - Flatten Operation:
-    - ${Flatten}(v_1, v_2, ..... ,v_T) = [v_{1,1}, v_{1,2}, ..... ,v_T, D]$
-    - Where $v_{i,j}$ denotes the j-th component of the i-th vector.
-
-- Dense Layer (Logistic Regression):
-  - The dense layer with a sigmoid activation function is a logistic regression model used for binary classification. The logistic regression model outputs a probability that the input belongs to a positive class.
+:::
+::: {.column width="50%"}
+- Dense Layer
+  - A logistic regression model with a sigmoid activation function used for binary classification. 
+  - It outputs the probability that the input belongs to a positive class.
   - $y=\sigma(W⋅z+b)$
   - Where:
-    - z is the flattened input vector.
-    - W is the weight vector.
-    - b is the bias term.
-    - $\sigma(x) = \frac{1}{1+e^{-x}}$ is the sigmoid function.
+     - z is the flattened input vector.
+     - W is the weight vector.
+     - b is the bias term.
+     - $\sigma(x) = \frac{1}{1+e^{-x}}$ is the sigmoid function.
+:::
+::::
 
-- Cosine Similarity:
-  - Cosine similarity measures the cosine of the angle between two non-zero vectors, providing a measure of similarity.
-  - $cosine\_similarity(u,v) = \frac{u.v}{||u|| ||v||}$
-  - Where:
-    - $u.v$ is the dot product of vectors u and v.
-    - $||u||$ and $||v||$ are the magnitudes of u and v.
-  - Cosine similarity is used in the `close_embeddings` function to find the words whose embeddings are closest to a given word in the embedding space.
+## Sentiment Analysis
+- Through the use of a neural network and it's hidden layers (embedding & dense), and the cosine similarity we are able to take inputs
+and classify them as being part of a positive or negative class based on what our model has learned from our training dataset.
