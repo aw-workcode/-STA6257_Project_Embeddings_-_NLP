@@ -154,298 +154,92 @@ and similarities between words
 - Through the use of a neural network and it's hidden layers (embedding & dense), and the cosine similarity we are able to take inputs
 and classify them as being part of a positive or negative class based on what our model has learned from our training dataset.
 
-## 3. Analysis and Results
-### 3.1 Dataset Description
-For sentiment analysis, this project will use a data set of movie reviews from IMDB [@ImdbDataset]. The dataset includes 25,000 movie reviews, and since some movies are reviewed more often than others, the dataset includes a maximum of 30 reviews for any particular movie. The dataset includes only the top 5,000 most frequent words, however the top 50 most frequent words are also discarded as they are unlikely to contribute much to sentiment context. IMDB reviews include a star rating of 1 to 10 stars, and these ratings have been converted to a 0-1 scale for use as a sentiment classification label in the dataset. 
-
-The TensorFlow package [@tensorflow2015] includes this dataset in a vectorized format which is ideal for use in neural networks. The vectorization process starts by assigning each word that appears in the vocabularly (i.e. all the unique words in the dataset) with a unique number for a numeric substitution value. Then each word in the original text observation is replaced with the substitution number assigned to that word. Every observation is translated in this same way to convert from a string made up of words to a vector of integers. An example follows below:
-
-Observation #1: "this is fun"
-
-Observation #2: "fun times ahead"
-
-Observation #3: "fun is ahead of times"
-
-Based on the three above observations, there are six unique words in the vocabularly. These six unique words would each be assigned a numeric value. Thus the vocabulary list would be [1-this, 2-is, 3-fun, 4-times, 5-ahead, 6-of]. To vectorize the strings, the numeric values for each of those words are added to a integer vector. The vectorized observations are shown below.
-
-Observation #1 vectorized: [1,2,3]
-
-Observation #2 vectorized: [3,4,5]
-
-Observation #3 vectorized: [3,2,5,6,4]
-
-
-#### Install and Import Packages
-
-```{r}
-#| output: false
-#| warning: false
-
-#install.packages('tidyverse', repos = "http://cran.us.r-project.org")
-#install.packages('tm', repos = "http://cran.us.r-project.org")
-#install.packages('SnowballC', repos = "http://cran.us.r-project.org")
-#install.packages('fastDummies', repos = "http://cran.us.r-project.org")
-#install.packages('reticulate', repos = "http://cran.us.r-project.org")
-#install.packages('tensorflow', repos = "http://cran.us.r-project.org")
-#remove.packages("keras")
-#install.packages('keras3', repos = "http://cran.us.r-project.org")
-#install.packages('dplyr', repos = "http://cran.us.r-project.org")
-#install.packages('text2vec', repos = "http://cran.us.r-project.org")
-#install.packages('tidyr', repos = "http://cran.us.r-project.org")
-#install.packages("devtools", repos = "http://cran.us.r-project.org")
-#reticulate::install_python()
-#install_keras(envname="r-tensorflow")
-
-library(tidyverse)
-library(tm)
-library(SnowballC)
-library(fastDummies)
-
-library(text2vec)
-library(dplyr)
-library(tidyr)
-
-library(keras3)
-```
-
-#### Loading and preparing Training and Test Data
-
-Load the tensorflow IMDB review dataset. Only the top most common 5000 words will be included. All other words will be replaced with a token representing an unknown word. Up to the first 500 words in a review are included in the training and test sets.
-
-The neural network will be expecting batches of training examples that are 500 words long, so pad any observations shorter than 500 words with a token representing the padding word to get to the required 500 word length.
-
-```{r}
-max_vocab_words <- 5000
-max_words <- 500
-
-imdb <- dataset_imdb(num_words = max_vocab_words)
-imdb_train_x = imdb$train$x
-imdb_test_x = imdb$test$x
-imdb_train_y = imdb$train$y
-imdb_test_y = imdb$test$y
-
-imdb_train_x <- pad_sequences(imdb_train_x, maxlen = max_words)
-imdb_test_x <- pad_sequences(imdb_test_x, maxlen = max_words)
-```
-
-### Statistical Modeling
-
-In this section a neural network model will be implemented using the keras package to learn embeddings for each of the words in the vocabulary. The goal is to learn multi-dimensional vectors where similar words are close in the vector-space, where similar means having a similar contextual meaning with regards to the training dataset and its sentiment classification. For example, "gem" and "favorite" would be highly similar in the context of a movie review, whereas in a general context they would not be so similar.
-
-The number of dimensions of the output embedding will be varied and tested as part of the modeling process. The number of dimensions is an important hyperparameter since it will control how much compression of the training set occurs. A small number of dimensions results in a higher amount of compression, whereas a large number of dimensions allows for more detail to be captured by the embeddings. However, a larger number of dimensions can also lead to overfitting [@yin2018dimensionality]. 
-
-Next the embedding model is trained. [@DeepLearningRBook] and [@Monroe] were important resources in coding the embedding training. As a first step, the model will be trained repeatedly with a different number of dimensions each time. Models will be trained using from 2 to 7 dimensions, and the testing accuracy will be recorded for each model.
-
-The neural network model uses an embedding layer that will convert the words in the vocabulary to a multi-dimensional vector embedding once trained. The number of inputs to the embedding layer is 5000, which corresponds to the number of words in the vocabulary. The selected number of outputs for the embedding layer is the dimensionality of the embedding vector. As mentioned previously, this dimensionality will be varried to test the performance of the embeddings across different sizes of embedding dimensions. A second layer in the neural network model flattens the 3 dimensional tensor output from the embedding layer to a 2 dimensional tensor. Finally, a dense layer connects every output from the flatten layer to the final output layer. The model is trained using back propagation to predict the sentiment classification variable, and the final trained weights of the embedding layer are the embeddings for each corresponding word in the vocabulary.
-
-```{r}
-set.seed(3)
-reticulate::py_run_string("import random; random.seed(3)")
-reticulate::py_run_string("import keras; keras.utils.set_random_seed(3)")
-
-max_vector_dimensions <- 7
-accuracy_by_dimensions <- c()
-for (num_dims in rep(2:max_vector_dimensions)) {
-  imdb_embedding_model <- keras_model_sequential() %>%
-    layer_embedding(input_dim = max_vocab_words, output_dim = num_dims) %>%
-    layer_flatten() %>%
-    layer_dense(units = 1, activation = "sigmoid")
-  
-  imdb_embedding_model %>% compile(
-    optimizer = "rmsprop",
-    loss = "binary_crossentropy",
-    metrics = c("acc")
-  )
-  
-  imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
-    imdb_train_x, imdb_train_y, verbose=0,
-    epochs = 6,
-    batch_size = 32,
-    validation_split = 0.2
-  )
-  
-  imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
-  accuracy_by_dimensions = c(accuracy_by_dimensions, imdb_embedding_results[["acc"]])
-}
-names(accuracy_by_dimensions) <- rep(2:max_vector_dimensions)
-accuracy_by_dimensions
-```
-Surprisingly, an embedding of just 2 dimensions had the best accuracy. That may be the highest accuracy in predicting the binary sentiment classification, but the question is does that over compress the data and fail to represent the higher order patterns we hope the embedding models? As [@yin2018dimensionality] points out, "the impact of dimensionality on word embedding has not yet been fully understood...a word embedding with a small dimensionality is typically not expressive enough to capture all possible word relations, whereas one with a very large dimensionality suffers from over-fitting." 
-
-The model with just 2 dimensions is tested to see how well it does on finding similar words, where similar is in the context of the sentiment of a movie review.
-
-```{r}
-best_num_dimensions = 2
-
-imdb_embedding_model <- keras_model_sequential() %>%
-  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
-  layer_flatten() %>%
-  layer_dense(units = 1, activation = "sigmoid")
-
-imdb_embedding_model %>% compile(
-  optimizer = "rmsprop",
-  loss = "binary_crossentropy",
-  metrics = c("acc")
-)
-
-imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
-  imdb_train_x, imdb_train_y, verbose=0,
-  epochs = 6,
-  batch_size = 32,
-  validation_split = 0.2
-)
-  
-imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
-
-# Get the weights from layer 1, the embedding layer. This is
-# the list of embedding vectors.
-embedding_weights <- get_weights(imdb_embedding_model)[[1]] 
-
-# add labels for the word represented by each embedding
-imdb_word_index = dataset_imdb_word_index()
-reverse_word_index <- names(imdb_word_index)
-names(reverse_word_index) <- imdb_word_index
-top_words <- reverse_word_index[as.character(1:max_vocab_words)]
-rownames(embedding_weights) = c("*","*","*","*", top_words[1:(max_vocab_words-4)])
-
-# create a function to find embeddings that are close to the desired 
-# word, using cosine similarity to determine closeness
-close_embeddings <- function(search_word, embeddings) {
-  result <- embeddings[search_word, , drop=FALSE] %>% sim2(embeddings, y=., method="cosine")
-  result[,1] %>% sort(decreasing=TRUE) %>% head(n=6)
-}
-```
-
-The words "awful", "mediocre", "perfect" and "favorite" are some positive and negative words that could be found in a movie review. These test words are ysed to qualitatively test the embedding model by examining which words are found to be close to the test words.
-
-```{r}
-close_embeddings("awful", embedding_weights)
-close_embeddings("mediocre", embedding_weights)
-close_embeddings("perfect", embedding_weights)
-close_embeddings("favorite", embedding_weights)
-```
-Some related words are found, but there are some other words that don't seem to be very related. Overall the results don't appear very good, so it seems embeddings using only 2 dimensions is not adequate despite the high accuracy found on the test set.
-
-[@yin2018dimensionality] states that selecting the number of dimensions is often done ad hoc or by using grid search, with a common method being to train embeddings of different dimensions and evaluate them models using a functionality test like word analogy. A similar method was used here on a smaller scale where the embedding model was retrained using a larger number of dimensions and the performance of the related words test was compared. There was insufficient time to test many model variations, but it was important to test a larger number of dimensions to compare to the 2 dimension model. The test accuracy for the model previously trained with 7 dimensions was fairly close to the accuracy for 2 dimensions, so that embedding length was tested next.
-
-```{r}
-best_num_dimensions = 7
-
-imdb_embedding_model <- keras_model_sequential() %>%
-  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
-  layer_flatten() %>%
-  layer_dense(units = 1, activation = "sigmoid")
-
-imdb_embedding_model %>% compile(
-  optimizer = "rmsprop",
-  loss = "binary_crossentropy",
-  metrics = c("acc")
-)
-
-imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
-  imdb_train_x, imdb_train_y, verbose=0,
-  epochs = 6,
-  batch_size = 32,
-  validation_split = 0.2
-)
-  
-imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
-```
-
-Here are the similar words for the same positive and negative words that were previously tested, but now tested using the new embedding model with higher dimensionality:
-
-```{r}
-embedding_weights <- get_weights(imdb_embedding_model)[[1]] 
-rownames(embedding_weights) = c("*","*","*","*", top_words[1:(max_vocab_words-4)])
-
-close_embeddings("awful", embedding_weights)
-close_embeddings("mediocre", embedding_weights)
-close_embeddings("perfect", embedding_weights)
-close_embeddings("favorite", embedding_weights)
-```
-These results are better than the 2 dimension model, so it seems test accuracy isn't a good method to determine how many dimensions should be included in the embedding model.
-
-Next, the number of epochs used in training will be evaluated to see how that impacts the model performance.
-
-```{r}
-# Now that we know how many dimensions gives the greatest accuracy, find the number of epochs so model doesn't overfit
-set.seed(42)
-reticulate::py_run_string("import random; random.seed(42)")
-reticulate::py_run_string("import keras; keras.utils.set_random_seed(42)")
-
-imdb_embedding_model <- keras_model_sequential() %>%
-  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
-  layer_flatten() %>%
-  layer_dense(units = 1, activation = "sigmoid")
-
-imdb_embedding_model %>% compile(
-  optimizer = "rmsprop",
-  loss = "binary_crossentropy",
-  metrics = c("acc")
-)
-
-imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
-  imdb_train_x, imdb_train_y, verbose=0,
-  epochs = 10,
-  batch_size = 32,
-  validation_split = 0.2
-)
-  
-imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
-```
-
-![Training Metrics](training_plot.png)
-This keras graph of the accuracy of the training data (blue) vs. the testing data (green) shows that the testing accuracy starts to flatten at epoch 6, so it appears 6 epochs is effective. This is the number of epochs previously used in training, so the best model remains 7 dimensions trained with 6 epochs.
-
-### Data and Visualization
-```{r Umap_dataframe}
-#install.packages("umap")
-library(umap)
-df_embedding_weights <- as.data.frame(embedding_weights, stringsAsFactors = FALSE)
-
-df_embedding_weights <- cbind('words' = rownames(df_embedding_weights),df_embedding_weights)
-rownames(df_embedding_weights) <- 1:nrow(df_embedding_weights)
-```
-
-```{r Umap}
-library(ggplot2)
-ggplot(df_embedding_weights) +
-      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 0.05)+
-      labs(title = "Words embedding in 2D using UMAP")+
-      theme(plot.title = element_text(hjust = .5, size = 14))
-```
-
-```{r Partial-Umap}
-
-ggplot(df_embedding_weights[df_embedding_weights$V1 > -.005 & df_embedding_weights$V1 < .005 & df_embedding_weights$V2 > -.5,]) +
-      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 2) +
-      geom_text(aes(V1, V2, label = words), size = 2.5, vjust=-1, hjust=0) +
-      labs(title = "embedding in 2D using UMAP - partial view") +
-      theme(plot.title = element_text(hjust = .5, size = 14))
-```
-
-```{r Umap-angry}
-# Step 1: Select the embedding for the word "angry"
-words <- embedding_weights["angry", , drop = FALSE]
-
-# Step 2: Compute cosine similarity
-cos_sim <- sim2(x = embedding_weights, y = words, method = "cosine", norm = "l2")
-
-# Step 3: Select top 25 most similar words
-select <- data.frame(words = rownames(as.data.frame(head(sort(cos_sim[, 1], decreasing = TRUE), 30))))
-
-# Step 4: Join data frames
-selected_words <- df_embedding_weights %>% inner_join(y = select, by = "words")
-
-
-ggplot(selected_words, aes(x = V1, y = V2, colour = words == 'angry')) + 
-      geom_point(show.legend = FALSE) + 
-      scale_color_manual(values = c('black', 'red')) +
-      geom_text(aes(V1, V2, label = words), show.legend = FALSE, size = 2.5, vjust=-1.5, hjust=0) +
-      labs(title = "embedding of words related to 'angry'") +
-      theme(plot.title = element_text(hjust = .5, size = 14))
-```
-
+# Analysis and Results
+## Dataset Description
+- Data set of 25,000 movie reviews from IMDB
+- Max 30 reviews for each movie since popular movies are rated more often than unpopular movies.
+- Includes only the top 5,000 most frequent words, minus the top 50 most frequent words
+- IMDB reviews 1-10 star rating converted to a 0-1 scale
+- Reviews already in vectorized format
+
+## Vectorization
+- Neural Networks require numeric inputs, not the natural language of reviews
+- Vectorization represents each word with a unique numeric substitution. For example the following texts: 
+  - "this is fun", "fun times ahead", "fun is ahead of times"
+
+- Results in a vocabulary of [this, is, fun, times, ahead, of]
+- Vectorized observations: [1, 2, 3], [3, 4, 5] and [3, 2, 5, 6, 4]
+- TensorFlow includes the IMDB dataset in a vectorized format
+
+# Statistical Modeling
+## Neural Network Implementation {.smaller}
+
+- Neural network model implemented and trained using TF's Keras
+- TF and Keras implemented in Python and accessed from R via Reticulate
+- Model learns embeddings for each word in the vocabulary
+- Multi-dimensional embedding vectors placed close in the learned vector-space to vectors of similar words
+- Similar means having a similar contextual meaning in the training dataset and its sentiment classification
+  - "gem" and "favorite" would be similar in context of a movie review, but not in a general context
+
+
+## Neural Network Implementation {.smaller}
+- Keras Sequential model (model is built layer-by-layer)
+- The neural networks leverages the Keras embedding layer
+  - Converts input vocabulary index into a vector of a chosen dimension
+  - Dimensionality important hyperparameter that controls compression vs overfitting
+- Output of embedding layer is the dimensionality hyperparameter
+- Embedding layer connects to a dense layer
+- Dense layers require a 1D input vector so embedding layer output is flattened to 1D
+- Dense layer has a 1 output unit with sigmoid activation function that receives the flattened embedding output
+- Output unit is the sentiment score
+- Back-propagation trains embedding layer weights to be similar based on sentiment
+
+## Determining Vector Dimensionality
+- Number of dimensions for the embeddings must be selected
+- Dimensionality selection often done ad hoc, or with grid search
+- 2 through 7 dimensions were tested and compared by testing accuracy and qualitatively
+
+## Model Performance: 2D
+- 2 dimensions had best accuracy, but failed to capture meaning
+- Closest embeddings to the embedding for "awful":
+
+| word | cosine similarity |
+| -----|-------------------|
+| awful| 1.0 |
+| lame | 1.0 |
+| alcoholic | 1.0 |
+| sadly | 0.99 |
+| relevant | 0.99|
+| are | 0.99 |
+
+## Model Performance: 2D vs 7D {.smaller}
+- Dimensions had similar accuracy, but better embedding performance
+
+::: {#tbl-panel layout-ncol=2}
+| reference word | closest words |
+| - | --- |
+|awful | lame, alcoholic, sadly, relevant, are |
+|mediocre | effort, turkey, terrible, stereotype, repeat |
+|perfect | lovers, sing, manager, bath, donald | 
+|favorite | deeply, roud, marie, polanski, poetry |
+
+: 2 Dimensions {#tbl-first}
+
+| reference word | closest words |
+| - | --- |
+|awful | ultimately, painful, sorry, fake, nowhere |
+|mediocre | teeth, incompetent, main, disappointing, generous |
+|perfect | great, seeking, freedom, tremendous, excellent |
+|favorite | paulie, excellent, necessary, great, seeking |
+
+: 7 Dimensions {#tbl-second}
+
+Closest Words By Dimensionality
+:::
+
+
+
+## Data and Visualization
 
 ### Conclusion
 The development and analysis of the word embedding model for classifying IMDB movie reviews demonstrated promising results. The optimal number of embedding dimensions was identified as 7, achieving an accuracy of 87.34% on the test dataset. This was determined through extensive experimentation, revealing that higher dimensions, such as 7, provided competitive and consistent accuracy. The model's performance is noteworthy, given the constraints of training on only the top 5000 most common words, minimal data preprocessing, and limiting input sequences to the first 500 words of each review. These factors illustrate the model's robustness and effectiveness in capturing the semantic relationships within the data.
