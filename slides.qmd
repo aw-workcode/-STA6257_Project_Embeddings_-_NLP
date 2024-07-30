@@ -155,14 +155,22 @@ and similarities between words
 and classify them as being part of a positive or negative class based on what our model has learned from our training dataset.
 
 # Analysis and Results
-## Dataset Description
+## Dataset Description 
+
+::: {.nonincremental}
+
 - Data set of 25,000 movie reviews from IMDB
 - Max 30 reviews for each movie since popular movies are rated more often than unpopular movies.
 - Includes only the top 5,000 most frequent words, minus the top 50 most frequent words
 - IMDB reviews 1-10 star rating converted to a 0-1 scale
 - Reviews already in vectorized format
 
+:::
+
 ## Vectorization
+
+::: {.nonincremental}
+
 - Neural Networks require numeric inputs, not the natural language of reviews
 - Vectorization represents each word with a unique numeric substitution. For example the following texts: 
   - "this is fun", "fun times ahead", "fun is ahead of times"
@@ -171,8 +179,12 @@ and classify them as being part of a positive or negative class based on what ou
 - Vectorized observations: [1, 2, 3], [3, 4, 5] and [3, 2, 5, 6, 4]
 - TensorFlow includes the IMDB dataset in a vectorized format
 
+:::
+
 # Statistical Modeling
 ## Neural Network Implementation {.smaller}
+
+::: {.nonincremental}
 
 - Neural network model implemented and trained using TF's Keras
 - TF and Keras implemented in Python and accessed from R via Reticulate
@@ -181,8 +193,12 @@ and classify them as being part of a positive or negative class based on what ou
 - Similar means having a similar contextual meaning in the training dataset and its sentiment classification
   - "gem" and "favorite" would be similar in context of a movie review, but not in a general context
 
+:::
 
 ## Neural Network Implementation {.smaller}
+
+::: {.nonincremental}
+
 - Keras Sequential model (model is built layer-by-layer)
 - The neural networks leverages the Keras embedding layer
   - Converts input vocabulary index into a vector of a chosen dimension
@@ -194,12 +210,22 @@ and classify them as being part of a positive or negative class based on what ou
 - Output unit is the sentiment score
 - Back-propagation trains embedding layer weights to be similar based on sentiment
 
+:::
+
 ## Determining Vector Dimensionality
+
+::: {.nonincremental}
+
 - Number of dimensions for the embeddings must be selected
 - Dimensionality selection often done ad hoc, or with grid search
 - 2 through 7 dimensions were tested and compared by testing accuracy and qualitatively
 
+:::
+
 ## Model Performance: 2D
+
+::: {.nonincremental}
+
 - 2 dimensions had best accuracy, but failed to capture meaning
 - Closest embeddings to the embedding for "awful":
 
@@ -212,8 +238,15 @@ and classify them as being part of a positive or negative class based on what ou
 | relevant | 0.99|
 | are | 0.99 |
 
+:::
+
 ## Model Performance: 2D vs 7D {.smaller}
-- Dimensions had similar accuracy, but better embedding performance
+
+::: {.nonincremental}
+
+- 7 Dimensions had similar accuracy to 2, but better embedding performance
+
+:::
 
 ::: {#tbl-panel layout-ncol=2}
 | reference word | closest words |
