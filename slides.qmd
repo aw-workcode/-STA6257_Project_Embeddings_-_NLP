@@ -24,14 +24,14 @@ font-size: 0.7em;
 </style>
 
 
-# 1. Introduction {.smaller .scrollable}
+# Introduction {.smaller .scrollable}
 
 - Sentiment Analysis:
   - Defined as a branch of Natural Language Processing (NLP) that focuses on the computational treatment of opinions, sentiments, and subjectivity in digital text [@MEDHAT20141093].
 
 ---
 
-## 1.1 Sentiment Analysis {.smaller .scrollable}
+## Sentiment Analysis {.smaller .scrollable}
 
 - Importance of Sentiment Analysis:
   - Essential for understanding public opinion, aiding businesses in refining marketing strategies, improving products, and enhancing customer satisfaction.
@@ -60,7 +60,7 @@ font-size: 0.7em;
   
 ---
 
-## 1.2 Vector Embeddings In Natural Language Processing {.smaller}
+## Vector Embeddings In Natural Language Processing {.smaller}
 
 - Introduction to Embeddings:
   - Vector embeddings are crucial for encoding or describing the sentiment of words or groups of words.
@@ -80,7 +80,7 @@ font-size: 0.7em;
 
 ---
 
-## 1.3 Using Embeddings For Sentiment Analysis {.smaller}
+## Using Embeddings For Sentiment Analysis {.smaller}
 
 - Performance Improvement:
   - Word embedding and deep learning models have significantly enhanced NLP tasks, including sentiment analysis [@10255396].
@@ -90,7 +90,6 @@ font-size: 0.7em;
   - Pre-trained word embeddings often fail to capture contextual sentiment information, leading to inaccuracies (e.g., mapping "good" and "bad" to neighboring vectors) [@9397340][@7296633].
   - The paper aims to explore these challenges and investigate alternative embedding methods for more accurate sentiment analysis.
 
----
 
 # Methods
 
@@ -274,7 +273,10 @@ Closest Words By Dimensionality
 
 ## Data and Visualization
 
-### Conclusion
-The development and analysis of the word embedding model for classifying IMDB movie reviews demonstrated promising results. The optimal number of embedding dimensions was identified as 7, achieving an accuracy of 87.34% on the test dataset. This was determined through extensive experimentation, revealing that higher dimensions, such as 7, provided competitive and consistent accuracy. The model's performance is noteworthy, given the constraints of training on only the top 5000 most common words, minimal data preprocessing, and limiting input sequences to the first 500 words of each review. These factors illustrate the model's robustness and effectiveness in capturing the semantic relationships within the data.
+# Conclusion  {.smaller}
 
-Furthermore, the embedding similarity results showed that the model could meaningfully capture semantic relationships, as evidenced by the coherent and relevant similar words found for terms like "awful," "mediocre," "perfect," and "favorite." The final training session, capped at 10 epochs, ensured the model did not overfit, maintaining its accuracy and reliability. Overall, the model's strong performance under constrained conditions highlights its potential for practical applications in sentiment analysis, offering an efficient and effective solution for understanding and categorizing movie reviews.
+- <span style="font-size: 0.65em !important;">The development and analysis of the word embedding model for classifying IMDB movie reviews demonstrated promising results. The optimal number of embedding dimensions was identified as 7, achieving an accuracy of 87.34% on the test dataset. This was determined through extensive experimentation, revealing that higher dimensions, such as 7, provided competitive and consistent accuracy. The model's performance is noteworthy, given the constraints of training on only the top 5000 most common words, minimal data preprocessing, and limiting input sequences to the first 500 words of each review. These factors illustrate the model's robustness and effectiveness in capturing the semantic relationships within the data.</span>
+
+- <span style="font-size: 0.65em !important;">Furthermore, the embedding similarity results showed that the model could meaningfully capture semantic relationships, as evidenced by the coherent and relevant similar words found for terms like "awful," "mediocre," "perfect," and "favorite." The final training session, capped at 10 epochs, ensured the model did not overfit, maintaining its accuracy and reliability. Overall, the model's strong performance under constrained conditions highlights its potential for practical applications in sentiment analysis, offering an efficient and effective solution for understanding and categorizing movie reviews.</span>
+
+---
