@@ -4,7 +4,6 @@ author: "Rod Acosta, Kevin Furbish, Ibrahim Khan, Anthony Washington"
 format: 
   revealjs:
     theme: moon
-    incremental: true
 course: STA 6257 - Advanced Statistical Modeling
 bibliography: references.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
@@ -17,19 +16,10 @@ editor:
     wrap: 72
 ---
 
-<style>
-div.smaller {
-font-size: 0.7em;
-}
-</style>
-
-
 # Introduction {.smaller .scrollable}
 
 - Sentiment Analysis:
   - Defined as a branch of Natural Language Processing (NLP) that focuses on the computational treatment of opinions, sentiments, and subjectivity in digital text [@MEDHAT20141093].
-
----
 
 ## Sentiment Analysis {.smaller .scrollable}
 
@@ -41,17 +31,22 @@ font-size: 0.7em;
   - Hasan, Maliha, and Arifuzzaman (2019) used Twitter data to demonstrate the potential of sentiment analysis.
   - Their methodology combined Bag of Words (BoW) and Term Frequency-Inverse Document Frequency (TF-IDF) models with logistic regression, achieving an accuracy of 85.25% in classifying tweets as positive or negative [@9036670].
 
----
+## Sentiment Analysis (Continued) {.smaller}
 
-<div class="smaller">
-- Case Study: E-commerce Reviews:
-  - Kathuria, Sethi, and Negi (2022) applied sentiment analysis to e-commerce reviews using various machine learning models (logistic regression, AdaBoost, SVM, Naive Bayes, and random forest).
-  - Analyzed the Women’s E-commerce Clothing Reviews dataset to understand consumer behavior and the impact of electronic word-of-mouth (eWOM) on customer attitudes and product sales [@10093674].
+::: {.panel-tabset .smaller}
 
-- Granular Approach:
-  - Nasukawa and Yi (2003) focused on extracting sentiments linked to specific subjects rather than entire documents.
-  - Their prototype system used a syntactic parser and sentiment lexicon to detect sentiments in web pages and news articles, offering detailed insights into specific opinions [@nasukawa2003sentiment].
-</div>
+### Case Study: E-commerce Reviews
+
+- Kathuria, Sethi, and Negi (2022) applied sentiment analysis to e-commerce reviews using various machine learning models (logistic regression, AdaBoost, SVM, Naive Bayes, and random forest).
+- Analyzed the Women’s E-commerce Clothing Reviews dataset to understand consumer behavior and the impact of electronic word-of-mouth (eWOM) on customer attitudes and product sales [@10093674].
+
+
+### Case Study: Granular Approach
+
+- Nasukawa and Yi (2003) focused on extracting sentiments linked to specific subjects rather than entire documents.
+- Their prototype system used a syntactic parser and sentiment lexicon to detect sentiments in web pages and news articles, offering detailed insights into specific opinions [@nasukawa2003sentiment].
+
+:::
 
 ---
 
@@ -72,11 +67,9 @@ font-size: 0.7em;
 
 ---
 
-<div class="smaller">
 - Advanced Embedding Models:
   - Sentence embeddings build on word embeddings to represent sentences, improving over Bag of Words models, which have high dimensionality and sparseness issues[@pilehvar2020embeddings].
   - Document embeddings further extend this concept to encode entire documents for NLP tasks where word ordering is important[@pilehvar2020embeddings].
-</div>
 
 ---
 
@@ -275,8 +268,8 @@ Closest Words By Dimensionality
 
 # Conclusion  {.smaller}
 
-- <span style="font-size: 0.65em !important;">The development and analysis of the word embedding model for classifying IMDB movie reviews demonstrated promising results. The optimal number of embedding dimensions was identified as 7, achieving an accuracy of 87.34% on the test dataset. This was determined through extensive experimentation, revealing that higher dimensions, such as 7, provided competitive and consistent accuracy. The model's performance is noteworthy, given the constraints of training on only the top 5000 most common words, minimal data preprocessing, and limiting input sequences to the first 500 words of each review. These factors illustrate the model's robustness and effectiveness in capturing the semantic relationships within the data.</span>
-
-- <span style="font-size: 0.65em !important;">Furthermore, the embedding similarity results showed that the model could meaningfully capture semantic relationships, as evidenced by the coherent and relevant similar words found for terms like "awful," "mediocre," "perfect," and "favorite." The final training session, capped at 10 epochs, ensured the model did not overfit, maintaining its accuracy and reliability. Overall, the model's strong performance under constrained conditions highlights its potential for practical applications in sentiment analysis, offering an efficient and effective solution for understanding and categorizing movie reviews.</span>
-
----
+- <b>Optimal Embedding Dimensions:</b> The best performance was achieved with 7 embedding dimensions, reaching an accuracy of 87.34% on the test dataset.
+- <b>Robust Performance:</b> The model demonstrated competitive and consistent accuracy even with higher dimensions and minimal data preprocessing.
+- <b>Limited Vocabulary and Input:</b> The model was trained on the top 5000 most common words and limited input sequences to the first 500 words, yet remained effective.
+- <b>Semantic Relationships:</b> The model successfully captured semantic relationships, shown by coherent similar words for terms like "awful," "mediocre," "perfect," and "favorite."
+- <b>Avoiding Overfitting:</b> Training was limited to 10 epochs to prevent overfitting, maintaining the model's accuracy and reliability for practical sentiment analysis applications.
