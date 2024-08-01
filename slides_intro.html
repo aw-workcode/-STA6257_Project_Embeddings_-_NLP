@@ -1174,104 +1174,106 @@ Rod Acosta, Kevin Furbish, Ibrahim Khan, Anthony Washington
 </div>
 
 </section>
-<section class="slide level2">
-
-<style>
-div.smaller {
-font-size: 0.7em;
-}
-</style>
-</section>
 <section>
 <section id="introduction" class="title-slide slide level1 smaller scrollable center">
-<h1>1. Introduction</h1>
+<h1>Introduction</h1>
 <ul>
-<li class="fragment">Sentiment Analysis:
+<li>What is NLP?
 <ul>
-<li class="fragment">Defined as a branch of Natural Language Processing (NLP) that focuses on the computational treatment of opinions, sentiments, and subjectivity in digital text <span class="citation" data-cites="MEDHAT20141093">(<a href="#/references" role="doc-biblioref" onclick>Medhat, Hassan, and Korashy 2014</a>)</span>.</li>
+<li>Natural Language Processing (NLP) is a field of artificial intelligence that focuses on the interaction between computers and human language. It involves teaching computers to understand, interpret, and respond to human language in a useful way.</li>
 </ul></li>
 </ul>
 </section>
 <section id="sentiment-analysis" class="slide level2 smaller scrollable">
-<h2>1.1 Sentiment Analysis</h2>
+<h2>Sentiment Analysis</h2>
 <ul>
-<li class="fragment">Importance of Sentiment Analysis:
-<ul>
-<li class="fragment">Essential for understanding public opinion, aiding businesses in refining marketing strategies, improving products, and enhancing customer satisfaction.</li>
-<li class="fragment">The rise of social media and e-commerce platforms has increased the importance of sentiment analysis for real-time consumer behavior insights.</li>
-</ul></li>
-<li class="fragment">Case Study: Twitter Data:
-<ul>
-<li class="fragment">Hasan, Maliha, and Arifuzzaman (2019) used Twitter data to demonstrate the potential of sentiment analysis.</li>
-<li class="fragment">Their methodology combined Bag of Words (BoW) and Term Frequency-Inverse Document Frequency (TF-IDF) models with logistic regression, achieving an accuracy of 85.25% in classifying tweets as positive or negative <span class="citation" data-cites="9036670">(<a href="#/references" role="doc-biblioref" onclick>Hasan, Maliha, and Arifuzzaman 2019</a>)</span>.</li>
-</ul></li>
+<li>Sentiment Analysis is a technique used in NLP to determine the emotional tone behind words. It helps to understand the sentiment expressed in text, whether it is positive, negative, or neutral.</li>
 </ul>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default href="#tabset-1-1">Importance of Sentiment Analysis</a></li><li><a href="#tabset-1-2">Case Study: Twitter Data</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<ul>
+<li>Essential for understanding public opinion, aiding businesses in refining marketing strategies, improving products, and enhancing customer satisfaction.</li>
+<li>The rise of social media and e-commerce platforms has increased the importance of sentiment analysis for real-time consumer behavior insights.</li>
+</ul>
+</div>
+<div id="tabset-1-2">
+<ul>
+<li>Hasan, Maliha, and Arifuzzaman (2019) used Twitter data to demonstrate the potential of sentiment analysis.</li>
+<li>Their methodology combined Bag of Words (BoW) and Term Frequency-Inverse Document Frequency (TF-IDF) models with logistic regression, achieving an accuracy of 85.25% in classifying tweets as positive or negative <span class="citation" data-cites="9036670">(<a href="#/references" role="doc-biblioref" onclick>Hasan, Maliha, and Arifuzzaman 2019</a>)</span>.</li>
+</ul>
+</div>
+</div>
+</div>
 </section>
-<section class="slide level2">
-
-<div class="smaller">
+<section id="sentiment-analysis-continued" class="slide level2 smaller">
+<h2>Sentiment Analysis (Continued)</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default href="#tabset-2-1">Case Study: E-commerce Reviews</a></li><li><a href="#tabset-2-2">Case Study: Granular Approach</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
 <ul>
-<li class="fragment">Case Study: E-commerce Reviews:
-<ul>
-<li class="fragment">Kathuria, Sethi, and Negi (2022) applied sentiment analysis to e-commerce reviews using various machine learning models (logistic regression, AdaBoost, SVM, Naive Bayes, and random forest).</li>
-<li class="fragment">Analyzed the Women’s E-commerce Clothing Reviews dataset to understand consumer behavior and the impact of electronic word-of-mouth (eWOM) on customer attitudes and product sales <span class="citation" data-cites="10093674">(<a href="#/references" role="doc-biblioref" onclick>Kathuria, Sethi, and Negi 2022</a>)</span>.</li>
-</ul></li>
-<li class="fragment">Granular Approach:
-<ul>
-<li class="fragment">Nasukawa and Yi (2003) focused on extracting sentiments linked to specific subjects rather than entire documents.</li>
-<li class="fragment">Their prototype system used a syntactic parser and sentiment lexicon to detect sentiments in web pages and news articles, offering detailed insights into specific opinions <span class="citation" data-cites="nasukawa2003sentiment">(<a href="#/references" role="doc-biblioref" onclick>Nasukawa and Yi 2003</a>)</span>.</li>
-</ul></li>
+<li>Kathuria, Sethi, and Negi (2022) applied sentiment analysis to e-commerce reviews using various machine learning models (logistic regression, AdaBoost, SVM, Naive Bayes, and random forest).</li>
+<li>Analyzed the Women’s E-commerce Clothing Reviews dataset to understand consumer behavior and the impact of electronic word-of-mouth (eWOM) on customer attitudes and product sales <span class="citation" data-cites="10093674">(<a href="#/references" role="doc-biblioref" onclick>Kathuria, Sethi, and Negi 2022</a>)</span>.</li>
 </ul>
+</div>
+<div id="tabset-2-2">
+<ul>
+<li>Nasukawa and Yi (2003) focused on extracting sentiments linked to specific subjects rather than entire documents.</li>
+<li>Their prototype system used a syntactic parser and sentiment lexicon to detect sentiments in web pages and news articles, offering detailed insights into specific opinions <span class="citation" data-cites="nasukawa2003sentiment">(<a href="#/references" role="doc-biblioref" onclick>Nasukawa and Yi 2003</a>)</span>.</li>
+</ul>
+</div>
+</div>
 </div>
 </section>
 <section class="slide level2">
 
 <ul>
-<li class="fragment">Conclusion:
+<li>Conclusion:
 <ul>
-<li class="fragment">These studies illustrate the evolution and application of sentiment analysis using NLP, highlighting its critical role in extracting insights from vast amounts of text data for strategic decision-making.</li>
+<li>These studies illustrate the evolution and application of sentiment analysis using NLP, highlighting its critical role in extracting insights from vast amounts of text data for strategic decision-making.</li>
 </ul></li>
 </ul>
 </section>
 <section id="vector-embeddings-in-natural-language-processing" class="slide level2 smaller">
-<h2>1.2 Vector Embeddings In Natural Language Processing</h2>
+<h2>Vector Embeddings In Natural Language Processing</h2>
 <ul>
-<li class="fragment">Introduction to Embeddings:
+<li>Vector Embeddings are a way to represent words or phrases in numerical form. Each word or phrase is converted into a vector (a list of numbers) which captures its meaning based on the context it is used in.</li>
+<li>Introduction to Embeddings:
 <ul>
-<li class="fragment">Vector embeddings are crucial for encoding or describing the sentiment of words or groups of words.</li>
-<li class="fragment">Embeddings improve upon representing words as indices in a vocabulary by encoding relationships or similarities between words <span class="citation" data-cites="camacho2020embeddings">(<a href="#/references" role="doc-biblioref" onclick>Camacho-Collados and Pilehvar 2020</a>)</span>.</li>
+<li>Vector embeddings transform text data into a numerical format that can be used by machine learning models. This numerical representation captures the semantic meaning of words and phrases.</li>
 </ul></li>
-<li class="fragment">Advantages of Embeddings:
+<li>Advantages of Embeddings:
 <ul>
-<li class="fragment">Unlike simple vocabulary indices, embeddings can represent multiple meanings of words and their semantic and syntactic patterns <span class="citation" data-cites="pennington2014glove">(<a href="#/references" role="doc-biblioref" onclick>Pennington, Socher, and Manning 2014</a>)</span>.</li>
-<li class="fragment">Example: In the Word2Vec model, vector arithmetic can evaluate analogies (e.g., “king” - “man” + “woman” = “queen”)<span class="citation" data-cites="mikolov2013word2vec">(<a href="#/references" role="doc-biblioref" onclick>Mikolov et al. 2013</a>)</span>.</li>
+<li><b>Contextual Understanding:</b> Captures the meaning of words based on their context.</li>
+<li><b>Semantic Similarity:</b> Words with similar meanings have similar vector representations.</li>
+<li><b>Dimensionality Reduction:</b> Reduces complex text data into simpler numerical form.</li>
 </ul></li>
 </ul>
 </section>
 <section class="slide level2">
 
-<div class="smaller">
 <ul>
-<li class="fragment">Advanced Embedding Models:
+<li>Advanced Embedding Models:
 <ul>
-<li class="fragment">Sentence embeddings build on word embeddings to represent sentences, improving over Bag of Words models, which have high dimensionality and sparseness issues<span class="citation" data-cites="pilehvar2020embeddings">(<a href="#/references" role="doc-biblioref" onclick>Pilehvar and Camacho-Collados 2020</a>)</span>.</li>
-<li class="fragment">Document embeddings further extend this concept to encode entire documents for NLP tasks where word ordering is important<span class="citation" data-cites="pilehvar2020embeddings">(<a href="#/references" role="doc-biblioref" onclick>Pilehvar and Camacho-Collados 2020</a>)</span>.</li>
+<li>Sentence embeddings build on word embeddings to represent sentences, improving over Bag of Words models, which have high dimensionality and sparseness issues<span class="citation" data-cites="pilehvar2020embeddings">(<a href="#/references" role="doc-biblioref" onclick>Pilehvar and Camacho-Collados 2020</a>)</span>.</li>
+<li>Document embeddings further extend this concept to encode entire documents for NLP tasks where word ordering is important<span class="citation" data-cites="pilehvar2020embeddings">(<a href="#/references" role="doc-biblioref" onclick>Pilehvar and Camacho-Collados 2020</a>)</span>.</li>
 </ul></li>
 </ul>
-</div>
 </section>
 <section id="using-embeddings-for-sentiment-analysis" class="slide level2 smaller">
-<h2>1.3 Using Embeddings For Sentiment Analysis</h2>
+<h2>Using Embeddings For Sentiment Analysis</h2>
 <ul>
-<li class="fragment">Performance Improvement:
+<li>Performance Improvement:
 <ul>
-<li class="fragment">Word embedding and deep learning models have significantly enhanced NLP tasks, including sentiment analysis <span class="citation" data-cites="10255396">(<a href="#/references" role="doc-biblioref" onclick>Kasri et al. 2022</a>)</span>.</li>
-<li class="fragment">Popular methods include Word2Vec and Global Vectors (GloVe), trained on different datasets (Google News and Wikipedia 2014, respectively) <span class="citation" data-cites="10543279">(<a href="#/references" role="doc-biblioref" onclick>N et al. 2024</a>)</span>.</li>
+<li>Word embedding and deep learning models have significantly enhanced NLP tasks, including sentiment analysis <span class="citation" data-cites="10255396">(<a href="#/references" role="doc-biblioref" onclick>Kasri et al. 2022</a>)</span>.</li>
+<li>Popular methods include Word2Vec and Global Vectors (GloVe), trained on different datasets (Google News and Wikipedia 2014, respectively) <span class="citation" data-cites="10543279">(<a href="#/references" role="doc-biblioref" onclick>N et al. 2024</a>)</span>.</li>
 </ul></li>
-<li class="fragment">Challenges with Pre-trained Embeddings:
+<li>Challenges with Pre-trained Embeddings:
 <ul>
-<li class="fragment">Pre-trained word embeddings often fail to capture contextual sentiment information, leading to inaccuracies (e.g., mapping “good” and “bad” to neighboring vectors) [<span class="citation" data-cites="9397340">Liang et al. (<a href="#/references" role="doc-biblioref" onclick>2023</a>)</span>]<span class="citation" data-cites="7296633">(<a href="#/references" role="doc-biblioref" onclick>Tang et al. 2016</a>)</span>.</li>
-<li class="fragment">The paper aims to explore these challenges and investigate alternative embedding methods for more accurate sentiment analysis.</li>
+<li>Pre-trained word embeddings often fail to capture contextual sentiment information, leading to inaccuracies (e.g., mapping “good” and “bad” to neighboring vectors) [<span class="citation" data-cites="9397340">Liang et al. (<a href="#/references" role="doc-biblioref" onclick>2023</a>)</span>]<span class="citation" data-cites="7296633">(<a href="#/references" role="doc-biblioref" onclick>Tang et al. 2016</a>)</span>.</li>
+<li>The paper aims to explore these challenges and investigate alternative embedding methods for more accurate sentiment analysis.</li>
 </ul></li>
 </ul>
 </section>
@@ -1283,9 +1285,6 @@ font-size: 0.7em;
 </div>
 </div>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
-<div id="ref-camacho2020embeddings" class="csl-entry" role="listitem">
-Camacho-Collados, Jose, and Mohammad Taher Pilehvar. 2020. <span>“Embeddings in Natural Language Processing.”</span> In <em>Proceedings of the 28th International Conference on Computational Linguistics: Tutorial Abstracts</em>, edited by Lucia Specia and Daniel Beck, 10–15. Barcelona, Spain (Online): International Committee for Computational Linguistics. <a href="https://doi.org/10.18653/v1/2020.coling-tutorials.2">https://doi.org/10.18653/v1/2020.coling-tutorials.2</a>.
-</div>
 <div id="ref-9036670" class="csl-entry" role="listitem">
 Hasan, Md. Rakibul, Maisha Maliha, and M. Arifuzzaman. 2019. <span>“Sentiment Analysis with NLP on Twitter Data.”</span> In <em>2019 International Conference on Computer, Communication, Chemical, Materials and Electronic Engineering (IC4ME2)</em>, 1–4. <a href="https://doi.org/10.1109/IC4ME247184.2019.9036670">https://doi.org/10.1109/IC4ME247184.2019.9036670</a>.
 </div>
@@ -1298,20 +1297,11 @@ Kathuria, Priyanshi, Parth Sethi, and Rithwick Negi. 2022. <span>“Sentiment An
 <div id="ref-9397340" class="csl-entry" role="listitem">
 Liang, Bin, Rongdi Yin, Jiachen Du, Lin Gui, Yulan He, Min Yang, and Ruifeng Xu. 2023. <span>“Embedding Refinement Framework for Targeted Aspect-Based Sentiment Analysis.”</span> <em>IEEE Transactions on Affective Computing</em> 14 (1): 279–93. <a href="https://doi.org/10.1109/TAFFC.2021.3071388">https://doi.org/10.1109/TAFFC.2021.3071388</a>.
 </div>
-<div id="ref-MEDHAT20141093" class="csl-entry" role="listitem">
-Medhat, Walaa, Ahmed Hassan, and Hoda Korashy. 2014. <span>“Sentiment Analysis Algorithms and Applications: A Survey.”</span> <em>Ain Shams Engineering Journal</em> 5 (4): 1093–113. <a href="https://doi.org/10.1016/j.asej.2014.04.011">https://doi.org/10.1016/j.asej.2014.04.011</a>.
-</div>
-<div id="ref-mikolov2013word2vec" class="csl-entry" role="listitem">
-Mikolov, Tomas, Kai Chen, Greg Corrado, and Jeffrey Dean. 2013. <span>“Efficient Estimation of Word Representations in Vector Space.”</span> <a href="https://arxiv.org/abs/1301.3781">https://arxiv.org/abs/1301.3781</a>.
-</div>
 <div id="ref-10543279" class="csl-entry" role="listitem">
 N, Lavanya B., Anitha Rathnam K. V, Kiran K, P. Deepa Shenoy, and Venugopal K. R. 2024. <span>“Fusion of Deep Learning with Advanced and Traditional Embeddings in Sentiment Analysis.”</span> In <em>2024 IEEE 9th International Conference for Convergence in Technology (I2CT)</em>, 1–6. <a href="https://doi.org/10.1109/I2CT61223.2024.10543279">https://doi.org/10.1109/I2CT61223.2024.10543279</a>.
 </div>
 <div id="ref-nasukawa2003sentiment" class="csl-entry" role="listitem">
 Nasukawa, Tetsuya, and Jeonghee Yi. 2003. <span>“Sentiment Analysis: Capturing Favorability Using Natural Language Processing.”</span> In <em>Proceedings of the 2nd International Conference on Knowledge Capture</em>, 70–77.
-</div>
-<div id="ref-pennington2014glove" class="csl-entry" role="listitem">
-Pennington, Jeffrey, Richard Socher, and Christopher D Manning. 2014. <span>“Glove: Global Vectors for Word Representation.”</span> In <em>Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP)</em>, 1532–43.
 </div>
 <div id="ref-pilehvar2020embeddings" class="csl-entry" role="listitem">
 Pilehvar, Mohammad Taher, and Jose Camacho-Collados. 2020. <em>Embeddings in Natural Language Processing: Theory and Advances in Vector Representations of Meaning</em>. Morgan &amp; Claypool Publishers.

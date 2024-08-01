@@ -18,28 +18,37 @@ editor:
 
 # Introduction {.smaller .scrollable}
 
-- Sentiment Analysis:
-  - Defined as a branch of Natural Language Processing (NLP) that focuses on the computational treatment of opinions, sentiments, and subjectivity in digital text [@MEDHAT20141093].
+- What is NLP?
+  - Natural Language Processing (NLP) is a field of artificial intelligence that focuses on the interaction between computers and human language. It involves teaching computers to understand, interpret, and respond to human language in a useful way.
+
+---
 
 ## Sentiment Analysis {.smaller .scrollable}
 
-- Importance of Sentiment Analysis:
-  - Essential for understanding public opinion, aiding businesses in refining marketing strategies, improving products, and enhancing customer satisfaction.
-  - The rise of social media and e-commerce platforms has increased the importance of sentiment analysis for real-time consumer behavior insights.
+- Sentiment Analysis is a technique used in NLP to determine the emotional tone behind words. It helps to understand the sentiment expressed in text, whether it is positive, negative, or neutral.
 
-- Case Study: Twitter Data:
-  - Hasan, Maliha, and Arifuzzaman (2019) used Twitter data to demonstrate the potential of sentiment analysis.
-  - Their methodology combined Bag of Words (BoW) and Term Frequency-Inverse Document Frequency (TF-IDF) models with logistic regression, achieving an accuracy of 85.25% in classifying tweets as positive or negative [@9036670].
+::: {.panel-tabset}
+
+### Importance of Sentiment Analysis
+
+- Essential for understanding public opinion, aiding businesses in refining marketing strategies, improving products, and enhancing customer satisfaction.
+- The rise of social media and e-commerce platforms has increased the importance of sentiment analysis for real-time consumer behavior insights.
+
+### Case Study: Twitter Data
+
+- Hasan, Maliha, and Arifuzzaman (2019) used Twitter data to demonstrate the potential of sentiment analysis.
+- Their methodology combined Bag of Words (BoW) and Term Frequency-Inverse Document Frequency (TF-IDF) models with logistic regression, achieving an accuracy of 85.25% in classifying tweets as positive or negative [@9036670].
+
+:::
 
 ## Sentiment Analysis (Continued) {.smaller}
 
-::: {.panel-tabset .smaller}
+::: {.panel-tabset}
 
 ### Case Study: E-commerce Reviews
 
 - Kathuria, Sethi, and Negi (2022) applied sentiment analysis to e-commerce reviews using various machine learning models (logistic regression, AdaBoost, SVM, Naive Bayes, and random forest).
 - Analyzed the Women’s E-commerce Clothing Reviews dataset to understand consumer behavior and the impact of electronic word-of-mouth (eWOM) on customer attitudes and product sales [@10093674].
-
 
 ### Case Study: Granular Approach
 
@@ -57,13 +66,13 @@ editor:
 
 ## Vector Embeddings In Natural Language Processing {.smaller}
 
-- Introduction to Embeddings:
-  - Vector embeddings are crucial for encoding or describing the sentiment of words or groups of words.
-  - Embeddings improve upon representing words as indices in a vocabulary by encoding relationships or similarities between words [@camacho2020embeddings].
+- Vector Embeddings are a way to represent words or phrases in numerical form. Each word or phrase is converted into a vector (a list of numbers) which captures its meaning based on the context it is used in.
+- Vector embeddings transform text data into a numerical format that can be used by machine learning models. This numerical representation captures the semantic meaning of words and phrases.
 
 - Advantages of Embeddings:
-  - Unlike simple vocabulary indices, embeddings can represent multiple meanings of words and their semantic and syntactic patterns [@pennington2014glove].
-  - Example: In the Word2Vec model, vector arithmetic can evaluate analogies (e.g., "king" - "man" + "woman" = "queen")[@mikolov2013word2vec].
+  - <b>Contextual Understanding:</b> Captures the meaning of words based on their context.
+  - <b>Semantic Similarity:</b> Words with similar meanings have similar vector representations.
+  - <b>Dimensionality Reduction:</b> Reduces complex text data into simpler numerical form.
 
 ---
 
