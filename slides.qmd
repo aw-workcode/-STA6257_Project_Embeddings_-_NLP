@@ -262,14 +262,263 @@ and classify them as being part of a positive or negative class based on what ou
 Closest Words By Dimensionality
 :::
 
+```{r, results="hide"}
+#| output: false
+#| warning: false
+
+#install.packages('tidyverse', repos = "http://cran.us.r-project.org")
+#install.packages('tm', repos = "http://cran.us.r-project.org")
+#install.packages('SnowballC', repos = "http://cran.us.r-project.org")
+#install.packages('fastDummies', repos = "http://cran.us.r-project.org")
+#install.packages('reticulate', repos = "http://cran.us.r-project.org")
+#install.packages('tensorflow', repos = "http://cran.us.r-project.org")
+#remove.packages("keras")
+#install.packages('keras3', repos = "http://cran.us.r-project.org")
+#install.packages('dplyr', repos = "http://cran.us.r-project.org")
+#install.packages('text2vec', repos = "http://cran.us.r-project.org")
+#install.packages('tidyr', repos = "http://cran.us.r-project.org")
+#install.packages("devtools", repos = "http://cran.us.r-project.org")
+#reticulate::install_python()
+#install_keras(envname="r-tensorflow")
+
+library(tidyverse)
+library(tm)
+library(SnowballC)
+library(fastDummies)
+
+library(text2vec)
+library(dplyr)
+library(tidyr)
+
+library(keras3)
+```
+```{r}
+max_vocab_words <- 5000
+max_words <- 500
+
+imdb <- dataset_imdb(num_words = max_vocab_words)
+imdb_train_x = imdb$train$x
+imdb_test_x = imdb$test$x
+imdb_train_y = imdb$train$y
+imdb_test_y = imdb$test$y
+
+imdb_train_x <- pad_sequences(imdb_train_x, maxlen = max_words)
+imdb_test_x <- pad_sequences(imdb_test_x, maxlen = max_words)
+```
+
+```{r,  results="hide"}
+set.seed(3)
+reticulate::py_run_string("import random; random.seed(3)")
+reticulate::py_run_string("import keras; keras.utils.set_random_seed(3)")
+
+max_vector_dimensions <- 7
+accuracy_by_dimensions <- c()
+for (num_dims in rep(2:max_vector_dimensions)) {
+  imdb_embedding_model <- keras_model_sequential() %>%
+    layer_embedding(input_dim = max_vocab_words, output_dim = num_dims) %>%
+    layer_flatten() %>%
+    layer_dense(units = 1, activation = "sigmoid")
+  
+  imdb_embedding_model %>% compile(
+    optimizer = "rmsprop",
+    loss = "binary_crossentropy",
+    metrics = c("acc")
+  )
+  
+  imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+    imdb_train_x, imdb_train_y, verbose=0,
+    epochs = 6,
+    batch_size = 32,
+    validation_split = 0.2
+  )
+  
+  imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+  accuracy_by_dimensions = c(accuracy_by_dimensions, imdb_embedding_results[["acc"]])
+}
+names(accuracy_by_dimensions) <- rep(2:max_vector_dimensions)
+accuracy_by_dimensions
+```
+
+```{r, results="hide"}
+best_num_dimensions = 2
+
+imdb_embedding_model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
+  layer_flatten() %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+imdb_embedding_model %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("acc")
+)
+
+imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+  imdb_train_x, imdb_train_y, verbose=0,
+  epochs = 6,
+  batch_size = 32,
+  validation_split = 0.2
+)
+  
+imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+
+# Get the weights from layer 1, the embedding layer. This is
+# the list of embedding vectors.
+embedding_weights <- get_weights(imdb_embedding_model)[[1]] 
+
+# add labels for the word represented by each embedding
+imdb_word_index = dataset_imdb_word_index()
+reverse_word_index <- names(imdb_word_index)
+names(reverse_word_index) <- imdb_word_index
+top_words <- reverse_word_index[as.character(1:max_vocab_words)]
+rownames(embedding_weights) = c("*","*","*","*", top_words[1:(max_vocab_words-4)])
+
+# create a function to find embeddings that are close to the desired 
+# word, using cosine similarity to determine closeness
+close_embeddings <- function(search_word, embeddings) {
+  result <- embeddings[search_word, , drop=FALSE] %>% sim2(embeddings, y=., method="cosine")
+  result[,1] %>% sort(decreasing=TRUE) %>% head(n=6)
+}
+```
+
+```{r, results="hide"}
+close_embeddings("awful", embedding_weights)
+close_embeddings("mediocre", embedding_weights)
+close_embeddings("perfect", embedding_weights)
+close_embeddings("favorite", embedding_weights)
+```
+
+```{r, results="hide"}
+best_num_dimensions = 7
+
+imdb_embedding_model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
+  layer_flatten() %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+imdb_embedding_model %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("acc")
+)
+
+imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+  imdb_train_x, imdb_train_y, verbose=0,
+  epochs = 6,
+  batch_size = 32,
+  validation_split = 0.2
+)
+  
+imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+```
+
+```{r, results="hide"}
+embedding_weights <- get_weights(imdb_embedding_model)[[1]] 
+rownames(embedding_weights) = c("*","*","*","*", top_words[1:(max_vocab_words-4)])
+
+close_embeddings("awful", embedding_weights)
+close_embeddings("mediocre", embedding_weights)
+close_embeddings("perfect", embedding_weights)
+close_embeddings("favorite", embedding_weights)
+```
+
+```{r,  results="hide"}
+# Now that we know how many dimensions gives the greatest accuracy, find the number of epochs so model doesn't overfit
+set.seed(42)
+reticulate::py_run_string("import random; random.seed(42)")
+reticulate::py_run_string("import keras; keras.utils.set_random_seed(42)")
+
+imdb_embedding_model <- keras_model_sequential() %>%
+  layer_embedding(input_dim = max_vocab_words, output_dim = best_num_dimensions) %>%
+  layer_flatten() %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+imdb_embedding_model %>% compile(
+  optimizer = "rmsprop",
+  loss = "binary_crossentropy",
+  metrics = c("acc")
+)
+
+imdb_embedding_history <- imdb_embedding_model %>% keras3::fit(
+  imdb_train_x, imdb_train_y, verbose=0,
+  epochs = 10,
+  batch_size = 32,
+  validation_split = 0.2
+)
+  
+imdb_embedding_results <- imdb_embedding_model %>% evaluate(imdb_test_x, imdb_test_y)
+```
 
 
-## Data and Visualization
+```{r,  results="hide", Umap_dataframe}
+#install.packages("umap")
+library(umap)
+df_embedding_weights <- as.data.frame(embedding_weights, stringsAsFactors = FALSE)
 
-# Conclusion  {.smaller}
+df_embedding_weights <- cbind('words' = rownames(df_embedding_weights),df_embedding_weights)
+rownames(df_embedding_weights) <- 1:nrow(df_embedding_weights)
+```
 
-- <b>Optimal Embedding Dimensions:</b> The best performance was achieved with 7 embedding dimensions, reaching an accuracy of 87.34% on the test dataset.
-- <b>Robust Performance:</b> The model demonstrated competitive and consistent accuracy even with higher dimensions and minimal data preprocessing.
-- <b>Limited Vocabulary and Input:</b> The model was trained on the top 5000 most common words and limited input sequences to the first 500 words, yet remained effective.
-- <b>Semantic Relationships:</b> The model successfully captured semantic relationships, shown by coherent similar words for terms like "awful," "mediocre," "perfect," and "favorite."
-- <b>Avoiding Overfitting:</b> Training was limited to 10 epochs to prevent overfitting, maintaining the model's accuracy and reliability for practical sentiment analysis applications.
+## Data Visualization
+- <font size="5"> The Umap below shows the location of where all the words are embedded on a 2D plane. The words of the IMDB dataset are clustered densely around the origin of the graph.</font>
+```{r Umap}
+library(ggplot2)
+ggplot(df_embedding_weights) +
+      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 0.05)+
+      labs(title = "Words embedding in 2D using UMAP")+
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
+## Data Visualization
+- <font size="5"> The partial Umap below zooms in to the center of the Umap where it is most dense and labels the words to display all the words that are located near each other based on the embedding. </font>
+```{r Partial-Umap}
+
+ggplot(df_embedding_weights[df_embedding_weights$V1 > -.005 & df_embedding_weights$V1 < .005 & df_embedding_weights$V2 > -.5,]) +
+      geom_point(aes(x = V1, y = V2), colour = 'blue', size = 2) +
+      geom_text(aes(V1, V2, label = words), size = 2.5, vjust=-1, hjust=0) +
+      labs(title = "embedding in 2D using UMAP - partial view") +
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
+## Data Visualization
+- <font size="5">The Umap below shows the 25 most similar words to the word "angry" according to the embedding.</font>
+```{r Umap-angry}
+# Step 1: Select the embedding for the word "angry"
+words <- embedding_weights["angry", , drop = FALSE]
+
+# Step 2: Compute cosine similarity
+cos_sim <- sim2(x = embedding_weights, y = words, method = "cosine", norm = "l2")
+
+# Step 3: Select top 25 most similar words
+select <- data.frame(words = rownames(as.data.frame(head(sort(cos_sim[, 1], decreasing = TRUE), 30))))
+
+# Step 4: Join data frames
+selected_words <- df_embedding_weights %>% inner_join(y = select, by = "words")
+
+
+ggplot(selected_words, aes(x = V1, y = V2, colour = words == 'angry')) + 
+      geom_point(show.legend = FALSE) + 
+      scale_color_manual(values = c('black', 'red')) +
+      geom_text(aes(V1, V2, label = words), show.legend = FALSE, size = 2.5, vjust=-1.5, hjust=0) +
+      labs(title = "embedding of words related to 'angry'") +
+      theme(plot.title = element_text(hjust = .5, size = 14))
+```
+
+## Conclusion
+- The development and analysis of the word embedding model for classifying IMDB movie reviews demonstrated promising results. 
+
+- The optimal number of embedding dimensions was identified as 7, achieving an accuracy of 87.34% on the test data set. 
+
+- This was determined through extensive experimentation, revealing that higher dimensions, such as 7, provided competitive and consistent accuracy. 
+
+## Conclusion
+- The model's performance is noteworthy, given the constraints of training on only the top 5000 most common words, minimal data preprocessing, and limiting input sequences to the first 500 words of each review. 
+
+- These factors illustrate the model's robustness and effectiveness in capturing the semantic relationships within the data.
+
+## Conclusion
+- <font size="6">The embedding similarity results showed that the model could meaningfully capture semantic relationships, as evidenced by the coherent and relevant similar words found for terms like "awful," "mediocre," "perfect," and "favorite." The final training session, capped at 10 epochs, ensured the model did not overfit, maintaining its accuracy and reliability.</font> 
+
+- <font size="6"> Overall, the model's strong performance under constrained conditions highlights its potential for practical applications in sentiment analysis, offering an efficient and effective solution for understanding and categorizing movie reviews.</font>
+
+## References
