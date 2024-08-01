@@ -182,7 +182,6 @@ and classify them as being part of a positive or negative class based on what ou
 
 :::
 
-# Statistical Modeling
 ## Neural Network Implementation {.smaller}
 
 ::: {.nonincremental}
@@ -526,7 +525,7 @@ ggplot(selected_words, aes(x = V1, y = V2, colour = words == 'angry')) +
 - These factors illustrate the model's robustness and effectiveness in capturing the semantic relationships within the data.
 
 ## Conclusion
-- <font size="6">The embedding similarity results showed that the model could meaningfully capture semantic relationships, as evidenced by the coherent and relevant similar words found for terms like "awful," "mediocre," "perfect," and "favorite." The final training session, capped at 10 epochs, ensured the model did not overfit, maintaining its accuracy and reliability.</font> 
+- <font size="6">The embedding similarity results showed that the model could meaningfully capture semantic relationships, as evidenced by the coherent and relevant similar words found for terms like "awful," "mediocre," "perfect," and "favorite." The final training session, capped at 6 epochs, ensured the model did not overfit, maintaining its accuracy and reliability.</font> 
 
 - <font size="6"> Overall, the model's strong performance under constrained conditions highlights its potential for practical applications in sentiment analysis, offering an efficient and effective solution for understanding and categorizing movie reviews.</font>
 

@@ -193,7 +193,7 @@ imdb_test_x <- pad_sequences(imdb_test_x, maxlen = max_words)
 
 ### Statistical Modeling
 
-In this section a neural network model will be implemented using the keras package to learn embeddings for each of the words in the vocabulary. The goal is to learn multi-dimensional vectors where similar words are close in the vector-space, where similar means having a similar contextual meaning with regards to the training dataset and its sentiment classification. For example, "gem" and "favorite" would be highly similar in the context of a movie review, whereas in a general context they would not be so similar.
+In this section, a neural network model will be implemented using the Keras package to learn embeddings for each of the words in the vocabulary. The goal is to learn multi-dimensional vectors where similar words are close in the vector-space. In this case, "similar" means having a similar contextual meaning with regards to the training dataset and its sentiment classification. For example, "gem" and "favorite" would be highly similar in the context of a movie review, whereas in a general context they would not be so similar.
 
 The number of dimensions of the output embedding will be varied and tested as part of the modeling process. The number of dimensions is an important hyperparameter since it will control how much compression of the training set occurs. A small number of dimensions results in a higher amount of compression, whereas a large number of dimensions allows for more detail to be captured by the embeddings. However, a larger number of dimensions can also lead to overfitting [@yin2018dimensionality]. 
 
@@ -289,7 +289,7 @@ close_embeddings("favorite", embedding_weights)
 ```
 Some related words are found, but there are some other words that don't seem to be very related. Overall the results don't appear very good, so it seems embeddings using only 2 dimensions is not adequate despite the high accuracy found on the test set.
 
-[@yin2018dimensionality] states that selecting the number of dimensions is often done ad hoc or by using grid search, with a common method being to train embeddings of different dimensions and evaluate them models using a functionality test like word analogy. A similar method was used here on a smaller scale where the embedding model was retrained using a larger number of dimensions and the performance of the related words test was compared. There was insufficient time to test many model variations, but it was important to test a larger number of dimensions to compare to the 2 dimension model. The test accuracy for the model previously trained with 7 dimensions was fairly close to the accuracy for 2 dimensions, so that embedding length was tested next.
+[@yin2018dimensionality] states that selecting the number of dimensions is often done ad hoc or by using grid search, with a common method being to train embeddings of different dimensions and evaluate the models using a functionality test like word analogy. A similar method was used here on a smaller scale where the embedding model was retrained using a larger number of dimensions and the performance of the related words test was compared. There was insufficient time to test many model variations, but it was important to test a larger number of dimensions to compare to the 2 dimension model. The test accuracy for the model previously trained with 7 dimensions was fairly close to the accuracy for 2 dimensions, so that embedding length was tested next.
 
 ```{r}
 best_num_dimensions = 7
