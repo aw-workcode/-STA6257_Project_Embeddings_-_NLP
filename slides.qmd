@@ -164,7 +164,6 @@ and classify them as being part of a positive or negative class based on what ou
 - Max 30 reviews for each movie since popular movies are rated more often than unpopular movies.
 - Includes only the top 5,000 most frequent words, minus the top 50 most frequent words
 - IMDB reviews 1-10 star rating converted to a 0-1 scale
-- Reviews already in vectorized format
 
 :::
 
@@ -178,16 +177,16 @@ and classify them as being part of a positive or negative class based on what ou
 
 - Results in a vocabulary of [this, is, fun, times, ahead, of]
 - Vectorized observations: [1, 2, 3], [3, 4, 5] and [3, 2, 5, 6, 4]
-- TensorFlow includes the IMDB dataset in a vectorized format
+- TensorFlow (TF) includes the IMDB dataset in a vectorized format
 
 :::
 
-## Neural Network Implementation {.smaller}
+## Overview of Embeddings Neural Network {.smaller}
 
 ::: {.nonincremental}
 
-- Neural network model implemented and trained using TF's Keras
-- TF and Keras implemented in Python and accessed from R via Reticulate
+- Neural network model implemented and trained using TF's Keras package
+- TF and Keras Python implementations accessed from R via Reticulate package
 - Model learns embeddings for each word in the vocabulary
 - Multi-dimensional embedding vectors placed close in the learned vector-space to vectors of similar words
 - Similar means having a similar contextual meaning in the training dataset and its sentiment classification
@@ -195,7 +194,7 @@ and classify them as being part of a positive or negative class based on what ou
 
 :::
 
-## Neural Network Implementation {.smaller}
+## Neural Network Implementation In Keras {.smaller}
 
 ::: {.nonincremental}
 
@@ -203,10 +202,10 @@ and classify them as being part of a positive or negative class based on what ou
 - The neural networks leverages the Keras embedding layer
   - Converts input vocabulary index into a vector of a chosen dimension
   - Dimensionality important hyperparameter that controls compression vs overfitting
-- Output of embedding layer is the dimensionality hyperparameter
+- Output of embedding layer is the same as the dimensionality hyperparameter
 - Embedding layer connects to a dense layer
 - Dense layers require a 1D input vector so embedding layer output is flattened to 1D
-- Dense layer has a 1 output unit with sigmoid activation function that receives the flattened embedding output
+- Dense layer has a 1 output unit with sigmoid activation function that receives the flattened embedding layer output
 - Output unit is the sentiment score
 - Back-propagation trains embedding layer weights to be similar based on sentiment
 
@@ -217,8 +216,9 @@ and classify them as being part of a positive or negative class based on what ou
 ::: {.nonincremental}
 
 - Number of dimensions for the embeddings must be selected
-- Dimensionality selection often done ad hoc, or with grid search
-- 2 through 7 dimensions were tested and compared by testing accuracy and qualitatively
+- Dimensionality selection often done ad hoc with a functionality test
+- We tested 2 through 7 dimensions
+- Models compared by testing accuracy and qualitatievly looking at closest words
 
 :::
 
